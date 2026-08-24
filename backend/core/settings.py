@@ -248,18 +248,26 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_CONNECTION_MAX_RETRIES = None
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'socket_timeout': 10,
+    'socket_connect_timeout': 10,
+    'retry_on_timeout': True,
+}
+
 # Seat Hold Configuration
 HOLD_TTL_MINUTES = int(env('HOLD_TTL_MINUTES', default=10))
 
 # Celery Beat Schedule
 CELERY_BEAT_SCHEDULE = {
-    'release-expired-holds-every-minute': {
+    'release-expired-holds-every-30-seconds': {
         'task': 'bookings.tasks.release_expired_holds',
-        'schedule': 60.0,
+        'schedule': 30.0,
     },
-    'expire-waitlist-offers-every-minute': {
+    'expire-waitlist-offers-every-30-seconds': {
         'task': 'waitlist.tasks.expire_waitlist_offers',
-        'schedule': 60.0,
+        'schedule': 30.0,
     },
 }
 
