@@ -75,7 +75,7 @@ ASGI_APPLICATION = 'core.asgi.application'
 REDIS_URL = (
     os.environ.get('REDIS_URL')
     or os.environ.get('REDISURL')
-    or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+    or 'redis://127.0.0.1:6379/0'
 )
 
 CHANNEL_LAYERS = {
@@ -85,6 +85,7 @@ CHANNEL_LAYERS = {
             'hosts': [REDIS_URL],
             'capacity': 1500,
             'expiry': 10,
+            'group_expiry': 86400,
         },
     },
 }
