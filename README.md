@@ -7,7 +7,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ## 🔗 Live Deployment
 
 - **Frontend**: https://ticket-sphere-dusky.vercel.app/
-- **Backend API**: https://web-production-6ecbf.up.railway.app/api/
+- **Backend API**: https://ticketsphere-api-ypje.onrender.com/api/
 
 **Demo Login Credentials:**
 - **Customer**: `customer` / `customer1234`
@@ -24,20 +24,11 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 | **Real-Time WebSockets** | **Django Channels (Daphne / ASGI)** | Real-time seat map updates & live hold/booking broadcasting |
 | **Frontend Web App** | **React 19, TypeScript, Vite** | Single-page application with responsive interactive seat map grid |
 | **Styling & Icons** | **Tailwind CSS & Lucide Icons** | Custom glassmorphism dark theme with cursor ambient spotlight |
-| **Database** | **PostgreSQL (Production) / SQLite (Local Dev)** | Relational DB with row-level `select_for_update` locking & unique constraints (Railway Managed PostgreSQL in production; SQLite for local dev) |
+| **Database** | **PostgreSQL (Production) / SQLite (Local Dev)** | Relational DB with row-level `select_for_update` locking & unique constraints (Render Managed PostgreSQL in production; SQLite for local dev) |
 | **Task Queue & Cache** | **None** | Completely synchronous and dependency-free |
 | **Email Delivery** | **Django SMTP (Gmail)** | Live M-Ticket email delivery with embedded QR code passes |
 
 *(Note: Node.js 18+ is used locally as the JavaScript development environment to compile and bundle the React frontend).*
-
----
-
-## 📦 Deliverables Summary
-
-1. **Source Code Zip**: `TicketSphere.zip`
-2. **Setup & API Guide**: `README.md` (this file) & `backend/.env.example`
-3. **System Design Document**: `system_design.md` (800-word design write-up)
-4. **Deployment Blueprints**: `render.yaml` (Render Backend Blueprint) & Vercel deployment guide
 
 ---
 
@@ -56,7 +47,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ## ⚡ Quickstart & Local Setup
 
 ### Database Configuration & Driver Setup
-- **Production Deployment**: Uses Railway's managed **PostgreSQL**. The backend connects using standard `psycopg2-binary` via the `DATABASE_URL` environment variable:
+- **Production Deployment**: Uses Render's managed **PostgreSQL**. The backend connects using standard `psycopg2-binary` via the `DATABASE_URL` environment variable:
   ```
   DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<dbname>
   ```
