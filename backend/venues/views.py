@@ -26,7 +26,7 @@ class VenueListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsOrganiserOrAdmin]
+    permission_classes = [IsAdmin]
 
     def get(self, request):
         venues = Venue.objects.all().order_by('name')
@@ -158,7 +158,7 @@ class VenueDetailView(APIView):
     Restricted to role='admin'.
     """
 
-    permission_classes = [IsOrganiserOrAdmin]
+    permission_classes = [IsAdmin]
 
     def _get_venue(self, venue_id):
         try:
@@ -228,7 +228,7 @@ class SeatCategoryListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsOrganiserOrAdmin]
+    permission_classes = [IsAdmin]
 
     def get(self, request):
         categories = SeatCategory.objects.all()
@@ -286,7 +286,7 @@ class SeatCategoryDetailView(APIView):
     Seat categories are platform-level definitions managed by admins.
     """
 
-    permission_classes = [IsOrganiserOrAdmin]
+    permission_classes = [IsAdmin]
 
     def _get_category(self, category_id):
         try:
