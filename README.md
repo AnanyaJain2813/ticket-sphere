@@ -35,7 +35,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ## 📦 Deliverables Summary
 
 1. **Source Code Zip**: `TicketSphere.zip`
-2. **Setup & API Guide**: `README.md` (this file) & `.env.example`
+2. **Setup & API Guide**: `README.md` (this file) & `backend/.env.example`
 3. **System Design Document**: `system_design.md` (800-word design write-up)
 4. **Deployment Blueprints**: `render.yaml` (Render Backend Blueprint) & Vercel deployment guide
 
@@ -46,9 +46,9 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 - 🎟️ **Interactive Seat Layout Map**: Visual layout grid with real-time status indicators (Available, Held, Booked).
 - ⏱️ **Atomic Seat Hold & TTL Engine**: Configurable 10-minute hold timer with animated countdown ring and automatic background hold release.
 - 🔒 **Concurrency & Double-Booking Protection**: Database row locking via `select_for_update()` inside atomic transactions; Idempotency header protection on booking requests.
-- 📲 **M-Ticket QR Code Generation**: Instant QR code pass generation encoding booking reference with Brevo SMTP email integration.
+- 📲 **Live Email Delivery Polling**: Asynchronous Brevo SMTP email integration. The UI silently polls the backend to verify actual email delivery status and dynamically updates the confirmation screen (Success vs Pending).
 - ⏳ **Automated Category Waitlist**: When an event sells out, users can join a waitlist per seat category (`VIP`, `Premium`, `Standard`). When a booking is cancelled, seats are automatically assigned to the next waitlisted customer with a time-limited offer window.
-- 📊 **Organiser Revenue Analytics**: Real-time revenue summary, total bookings count, and occupancy rate metrics scoped per organiser.
+- 📊 **Organiser Revenue & Active Database Analytics**: Real-time revenue summary, occupancy rate metrics, and a dynamic table exposing the active database shows directly in the organiser dashboard.
 - 🛠️ **Admin Venue & Layout Builder**: Interactive 2D grid builder for creating complex seating layouts (rows, columns, categories).
 
 ---
@@ -65,7 +65,25 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ### Prerequisites
 - **Python 3.9+** (For Django Backend)
 - **Node.js 18+** (For React Frontend compilation)
-- **PostgreSQL or SQLite** (SQLite used by default for zero-config local dev; PostgreSQL driver `psycopg2-binary` included in `requirements.txt`)
+- **Redis Server** (Required for Celery background tasks and Websockets)
+
+---
+
+## ⚡ Zero-Config Local Setup (Recommended)
+
+The absolute easiest way to test this project locally is to use the included `start.sh` script, which automatically provisions the virtual environment, installs dependencies, migrates the database, seeds the test dataset, and boots both frontend and backend servers simultaneously on isolated ports (5175/8005) to avoid local port collisions.
+
+```bash
+# Make the script executable
+chmod +x start.sh
+
+# Run the complete stack (Django + React + Celery)
+./start.sh
+```
+
+---
+
+## ⚡ Manual Setup
 
 ### 1. Backend Setup (Python / Django)
 ```bash
@@ -82,24 +100,30 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py seed_db
 
-# Start Django backend server on port 8000
-python manage.py runserver 8000
+# Start Django backend server
+python manage.py runserver 8005
 ```
 
 ### 2. Frontend Setup (React / Vite)
 ```bash
 cd frontend
 
-# Set up environment variables (Required for API connection)
-# Create a .env file in the frontend folder with the following:
-# VITE_API_BASE_URL=http://localhost:8000/api
+# Set up environment variables
+# Create a .env file in the frontend folder:
+# echo "VITE_API_BASE_URL=http://localhost:8005/api" > .env
 
 # Install React frontend dependencies
 npm install
 
-# Start Vite dev server on port 5173
-npm run dev
+# Start Vite dev server
+npm run dev -- --port 5175
 ```
+
+### 3. SMTP Email Configuration (Optional)
+By default, the backend simulates email delivery by printing to the terminal console (to prevent crashes on unconfigured environments). To test real email delivery:
+1. Create a `backend/.env` file.
+2. Add your Brevo SMTP credentials (see `backend/.env.example`).
+3. Restart the backend server. The UI will automatically poll and display actual email delivery successes!
 
 ---
 
