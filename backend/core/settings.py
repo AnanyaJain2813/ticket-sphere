@@ -76,10 +76,11 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [
-                (os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0'), 
-                 {'health_check_interval': 25, 'socket_keepalive': True})
-            ],
+            'hosts': [{
+                'address': os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0'),
+                'health_check_interval': 25,
+                'socket_keepalive': True,
+            }],
         },
     },
 }
