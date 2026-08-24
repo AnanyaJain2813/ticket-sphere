@@ -5,6 +5,7 @@ from django.conf import settings
 from waitlist.models import WaitlistEntry
 from bookings.models import ShowSeat
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -75,14 +76,14 @@ def promote_waitlist_for_seat(seat):
                     'status': 'held',
                     'hold_expires_at': offer_expiry.isoformat()
                 }])
-                import threading
                 threading.Thread(
                     target=dispatch_waitlist_offer_email,
                     args=(
                         entry.user.email,
                         f"{seat.seat.row_name}{seat.seat.col_number}",
                         seat.show.event.title,
-                        ttl_minutes
+                        ttl_minutes,
+                        seat.show_id
                     ),
                     daemon=True
                 ).start()

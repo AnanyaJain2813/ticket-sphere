@@ -162,3 +162,85 @@ By default, the backend simulates email delivery by printing to the terminal con
 - `POST /api/waitlist/join/` - Join category waitlist for sold-out show
 - `GET /api/waitlist/` - View user waitlist entries
 - `GET /api/organiser/revenue/` - Organiser revenue analytics & occupancy rate
+
+---
+
+## 🗄️ Database Schema & Architecture
+
+The application uses an ACID-compliant PostgreSQL schema (mapped dynamically via Django ORM). The relationship structure is as follows:
+
+```mermaid
+erDiagram
+    User ||--o{ Event : "creates"
+    User ||--o{ Booking : "makes"
+    User ||--o{ WaitlistEntry : "joins"
+    Venue ||--|{ Seat : "has"
+    Venue ||--o{ Show : "hosts"
+    SeatCategory ||--o{ Seat : "classifies"
+    SeatCategory ||--o{ ShowSeat : "classifies"
+    Seat ||--o{ ShowSeat : "instances"
+    Event ||--|{ Show : "has"
+    Show ||--|{ ShowSeat : "maps"
+    ShowSeat ||--o| Booking : "assigns"
+```
+
+### Models & Field Definitions
+
+1.  **User (`accounts.User`)**
+    *   `id`: UUID / Primary Key
+    *   `username`: string (unique)
+    *   `role`: enum (`customer`, `organiser`, `admin`)
+    *   `email`: string
+2.  **Venue (`venues.Venue`)**
+    *   `id`: UUID
+    *   `name`: string, `location`: string, `total_capacity`: integer
+3.  **SeatCategory (`venues.SeatCategory`)**
+    *   `id`: UUID
+    *   `name`: string (`Standard`, `Premium`, `VIP`), `base_price`: decimal
+4.  **Seat (`venues.Seat`)**
+    *   `id`: UUID
+    *   `venue`: FK(`Venue`), `category`: FK(`SeatCategory`), `row_name`: string, `col_number`: integer
+5.  **Event (`events.Event`)**
+    *   `id`: UUID
+    *   `title`: string, `event_type`: string, `created_by`: FK(`User`)
+6.  **Show (`events.Show`)**
+    *   `id`: UUID
+    *   `event`: FK(`Event`), `venue`: FK(`Venue`), `start_time`: datetime, `end_time`: datetime
+7.  **ShowSeat (`bookings.ShowSeat`)** (Crucial model representing per-show seat status)
+    *   `id`: UUID
+    *   `show`: FK(`Show`), `seat`: FK(`Seat`), `category`: FK(`SeatCategory`), `price`: decimal
+    *   `status`: enum (`available`, `held`, `booked`)
+    *   `holder`: FK(`User`, null=True) - reference to the customer currently holding the seat
+    *   `hold_expires_at`: datetime (null=True) - hold TTL deadline
+    *   `is_waitlist_offer`: boolean - flag ensuring generic hold release tasks do not release waitlist-exclusive seat offers
+8.  **Booking (`bookings.Booking`)**
+    *   `id`: UUID
+    *   `user`: FK(`User`), `show`: FK(`Show`), `show_seat`: FK(`ShowSeat`, unique)
+    *   `booking_reference`: UUID (unique) - generated reference code (encoded inside the QR ticket)
+    *   `status`: enum (`pending`, `confirmed`, `cancelled`), `amount`: decimal, `email_delivery_failed`: boolean
+9.  **WaitlistEntry (`waitlist.WaitlistEntry`)**
+    *   `id`: UUID
+    *   `user`: FK(`User`), `show`: FK(`Show`), `category`: FK(`SeatCategory`)
+    *   `status`: enum (`waiting`, `offered`, `fulfilled`, `expired`)
+    *   `offer_expires_at`: datetime (null=True) - TTL deadline for the customer to act on an offer link
+
+---
+
+## 🔒 Concurrency, Hold TTL, and Waitlist Mechanics
+
+### 1. Concurrency Safety (`select_for_update`)
+When a seat is selected, the backend invokes `ShowSeat.objects.select_for_update().get(...)` inside an atomic transaction. This locks the database row at the PostgreSQL level.
+*   **Preventing Double-Holds**: If two requests hit the backend at the same millisecond for the same seat, PostgreSQL serializes them. The second request blocks until the first completes, then reads the updated state (e.g. `status=held`) and immediately fails validation, preventing double-bookings.
+*   **Physical DB Constraints**: As a fallback, `UniqueConstraint(name='unique_active_booking_per_show_seat')` prevents double confirmed bookings for the same seat at the database layer.
+
+### 2. Automatic Hold Expiry (Background Scheduler Daemon)
+Instead of forcing user page reloads to trigger cleanup, the system runs an automated **background daemon thread** (configured in `BookingsConfig.ready()`).
+*   It wakes up every **10 seconds** and executes `cleanup_expired_holds_and_offers()`.
+*   It automatically releases standard holds (`status='held'`, `hold_expires_at < now()`, `is_waitlist_offer=False`) and transitions their state back to `available`.
+*   It broadcasts seat map updates instantly to connected clients via WebSockets (`django-channels`).
+
+### 3. Automated Waitlist Chaining & Time-Limited Booking Links
+*   **Waitlist Promotion**: When a booking is cancelled or a seat hold expires, the system queries the oldest `waiting` waitlist entry. The entry transitions to `offered`, and the seat is locked with `is_waitlist_offer=True` and `holder=waitlisted_user`.
+*   **Time-Limited Email Link**: An email is dispatched containing a direct booking checkout URL (`https://ticket-sphere-dusky.vercel.app/?show={show_id}`).
+*   **Expiry Cascading**: The waitlist offer holds a 10-minute TTL. If not purchased, the background daemon expires the offer, marks the entry as `expired`, and recursively offers the seat to the next waitlisted user in line.
+

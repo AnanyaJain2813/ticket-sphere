@@ -7,6 +7,7 @@ import { WaitlistSection } from '../components/WaitlistSection';
 import { SearchWizard } from '../components/SearchWizard';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { RefreshCw } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 interface BookingPageProps {
   activeHolds: ActiveHold[];
@@ -19,6 +20,9 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   setActiveHolds,
   onMovieSelect,
 }) => {
+  const [searchParams] = useSearchParams();
+  const showParam = searchParams.get('show');
+
   const [shows, setShows] = useState<ShowItem[]>([]);
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [seats, setSeats] = useState<SeatItem[]>([]);
@@ -35,7 +39,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
         const data = await getShows();
         setShows(data);
         if (data.length > 0) {
-          setSelectedShowId(data[0].id);
+          const matchingShow = data.find(s => String(s.id) === showParam);
+          if (matchingShow) {
+            setSelectedShowId(matchingShow.id);
+          } else {
+            setSelectedShowId(data[0].id);
+          }
         }
       } catch (err) {
         console.error('Failed to load shows:', err);

@@ -8,10 +8,28 @@ logger = logging.getLogger(__name__)
 
 from bookings.services import broadcast_seat_updates
 
+import time
+import threading
+
+def start_background_cleanup_thread():
+    def run_cleanup():
+        # Allow server to boot up
+        time.sleep(5)
+        while True:
+            try:
+                cleanup_expired_holds_and_offers()
+            except Exception as e:
+                logger.error(f"Error in background cleanup thread: {e}")
+            time.sleep(10)  # Check every 10 seconds
+
+    thread = threading.Thread(target=run_cleanup, daemon=True)
+    thread.start()
+    logger.info("Started background seat hold and offer cleanup thread.")
+
+
 def cleanup_expired_holds_and_offers():
     """
-    Synchronously cleans up expired holds and waitlist offers.
-    This replaces the background scheduler, ensuring consistency exactly when needed.
+    Cleans up expired holds and waitlist offers.
     """
     from waitlist.tasks import expire_waitlist_offers
     

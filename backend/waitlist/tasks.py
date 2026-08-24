@@ -63,7 +63,7 @@ def expire_waitlist_offers():
 
 from django.conf import settings
 
-def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in_minutes):
+def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in_minutes, show_id):
     """
     Sends an email notifying a user that a waitlist seat is now available for them.
     """
@@ -74,9 +74,15 @@ def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in
             <p>You were on the waitlist for <strong>{show_title}</strong>.</p>
             <p>We've successfully reserved seat <strong>{seat_label}</strong> for you!</p>
             <p style="color: #ef4444; font-weight: bold;">
-                You have {expires_in_minutes} minutes to open the app and checkout before this offer expires and is passed to the next person.
+                You have {expires_in_minutes} minutes to complete the checkout before this offer expires and is passed to the next person.
             </p>
-            <p>Open CineStream now to complete your booking!</p>
+            <p>
+                <a href="https://ticket-sphere-dusky.vercel.app/?show={show_id}" 
+                   style="display: inline-block; background-color: #06b6d4; color: black; font-weight: bold; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-family: sans-serif;">
+                   Complete Your Booking Now
+                </a>
+            </p>
+            <p style="font-size: 11px; color: #666;">If the button doesn't work, copy and paste this link: https://ticket-sphere-dusky.vercel.app/?show={show_id}</p>
         </body>
     </html>
     """
