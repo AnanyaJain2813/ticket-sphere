@@ -23,7 +23,16 @@ export const useWebSocket = ({
   const connect = useCallback(() => {
     if (!showId) return;
 
-    const wsHost = import.meta.env.VITE_WS_BASE_URL || (window.location.hostname === 'localhost' ? 'ws://localhost:8000' : `wss://${window.location.host}`);
+    let wsHost = import.meta.env.VITE_WS_BASE_URL;
+    if (!wsHost) {
+      const apiBase = import.meta.env.VITE_API_BASE_URL;
+      if (apiBase) {
+        const url = new URL(apiBase);
+        wsHost = `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}`;
+      } else {
+        wsHost = window.location.hostname === 'localhost' ? 'ws://localhost:8005' : `wss://${window.location.host}`;
+      }
+    }
     const wsUrl = `${wsHost}/ws/shows/${showId}/seats/`;
 
     console.log(`Connecting to WebSocket: ${wsUrl}`);

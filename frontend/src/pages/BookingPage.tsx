@@ -23,6 +23,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [shows, setShows] = useState<ShowItem[]>([]);
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [seats, setSeats] = useState<SeatItem[]>([]);
+  const [isLoadingSeats, setIsLoadingSeats] = useState<boolean>(false);
   const [holdingSeatId, setHoldingSeatId] = useState<string | null>(null);
   const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
@@ -52,6 +53,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
 
   const fetchSeatMap = useCallback(async (showId: string) => {
     try {
+      setIsLoadingSeats(true);
       const seatData = await getShowSeats(showId);
       setSeats(seatData);
       
@@ -72,8 +74,11 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       });
     } catch (err) {
       console.error('Failed to load seat map:', err);
+      setSeats([]);
+    } finally {
+      setIsLoadingSeats(false);
     }
-  }, [setActiveHolds]);
+  }, [activeHolds, setActiveHolds]);
 
   useEffect(() => {
     if (selectedShowId) {
