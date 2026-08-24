@@ -266,6 +266,7 @@ CELERY_BEAT_SCHEDULE = {
 # Email Configuration (Brevo 300 Free Emails/day or Console fallback)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+BREVO_API_KEY = env('BREVO_API_KEY', default='')
 
 default_email_backend = 'django.core.mail.backends.smtp.EmailBackend' if (EMAIL_HOST_USER and EMAIL_HOST_PASSWORD) else 'django.core.mail.backends.console.EmailBackend'
 
