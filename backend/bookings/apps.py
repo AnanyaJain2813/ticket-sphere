@@ -5,7 +5,7 @@ from django.apps import AppConfig
 
 def run_background_cleanup():
     from bookings.tasks import cleanup_expired_holds_and_offers
-    from django.db import connection
+    from django.db import close_old_connections
     while True:
         try:
             time.sleep(60)
@@ -13,8 +13,8 @@ def run_background_cleanup():
         except Exception as e:
             print(f"Background cleanup error: {e}")
         finally:
-            # Ensure we close the DB connection after each run so we don't exhaust connection pools
-            connection.close()
+            # Ensure we close old DB connections after each run so we don't exhaust connection pools
+            close_old_connections()
 
 class BookingsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
