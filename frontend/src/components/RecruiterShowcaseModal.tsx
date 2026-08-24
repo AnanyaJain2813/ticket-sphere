@@ -1,4 +1,4 @@
-import { X, ShieldCheck, Zap, RefreshCw, Mail, Cpu, CheckCircle2, Award } from 'lucide-react';
+import { X, ShieldCheck, Zap, RefreshCw, Mail, CheckCircle2, Award } from 'lucide-react';
 
 interface RecruiterShowcaseModalProps {
   onClose: () => void;
