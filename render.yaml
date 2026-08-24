@@ -16,7 +16,7 @@ services:
           name: ticketsphere-db
           property: connectionString
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://ticket-sphere-two.vercel.app"
+        value: "https://ticket-sphere-dusky.vercel.app"
       - key: BREVO_API_KEY
         sync: false
 

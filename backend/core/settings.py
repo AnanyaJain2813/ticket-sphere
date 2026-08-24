@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'django-insecure-change-me-in-production'),
-    CORS_ALLOWED_ORIGINS=(str, 'https://ticket-sphere-two.vercel.app'),
+    CORS_ALLOWED_ORIGINS=(str, 'https://ticket-sphere-dusky.vercel.app'),
     HOLD_TTL_MINUTES=(int, 10),
     BREVO_API_KEY=(str, ""),
     DEFAULT_FROM_EMAIL=(str, 'jainananya2800@gmail.com'),
@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.onrender.com',
-    'ticket-sphere-two.vercel.app',
+    'ticket-sphere-dusky.vercel.app',
 ]
 
 # ─────────────────────────────────────────
@@ -192,13 +192,13 @@ FRONTEND_URLS = [url.strip().rstrip('/') for url in env('CORS_ALLOWED_ORIGINS').
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = FRONTEND_URLS + [
-    'https://ticket-sphere-two.vercel.app',
+    'https://ticket-sphere-dusky.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
 ]
 
 CSRF_TRUSTED_ORIGINS = FRONTEND_URLS + [
-    'https://ticket-sphere-two.vercel.app',
+    'https://ticket-sphere-dusky.vercel.app',
     'http://localhost:5173',
 ]
 
