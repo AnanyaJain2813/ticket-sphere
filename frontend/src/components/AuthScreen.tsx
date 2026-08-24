@@ -185,6 +185,37 @@ export const AuthScreen: React.FC = () => {
           </button>
         </form>
       </div>
+      
+      {/* Demo Accounts Section */}
+      <div className="w-full cinestream-card p-6 sm:p-8 rounded-3xl border border-[#262626] bg-[#121212]/80 space-y-4">
+        <h3 className="text-lg font-black text-white">Demo accounts</h3>
+        <p className="text-sm text-zinc-400">
+          Seeded by <code className="bg-[#262626] px-1.5 py-0.5 rounded text-cyan-400">python manage.py seed_db</code>. Click any account below to auto-fill.
+        </p>
+        <div className="space-y-3 pt-2">
+          <button 
+            onClick={() => { setUsername('customer'); setPassword('customer1234'); setMode('login'); }}
+            className="w-full flex items-center justify-between text-left text-sm text-cyan-500 hover:text-cyan-400 hover:underline transition-all"
+          >
+            <span><span className="font-bold">customer</span> (customer1234)</span>
+            <span className="text-zinc-500 text-xs">Customer</span>
+          </button>
+          <button 
+            onClick={() => { setUsername('organizer'); setPassword('12345678'); setMode('login'); }}
+            className="w-full flex items-center justify-between text-left text-sm text-cyan-500 hover:text-cyan-400 hover:underline transition-all"
+          >
+            <span><span className="font-bold">organizer</span> (12345678)</span>
+            <span className="text-zinc-500 text-xs">Organiser</span>
+          </button>
+          <button 
+            onClick={() => { setUsername('admin'); setPassword('admin1234'); setMode('login'); }}
+            className="w-full flex items-center justify-between text-left text-sm text-cyan-500 hover:text-cyan-400 hover:underline transition-all"
+          >
+            <span><span className="font-bold">admin</span> (admin1234)</span>
+            <span className="text-zinc-500 text-xs">Admin</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
