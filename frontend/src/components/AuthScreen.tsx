@@ -189,9 +189,6 @@ export const AuthScreen: React.FC = () => {
       {/* Demo Accounts Section */}
       <div className="w-full cinestream-card p-6 sm:p-8 rounded-3xl border border-[#262626] bg-[#121212]/80 space-y-4">
         <h3 className="text-lg font-black text-white">Demo accounts</h3>
-        <p className="text-sm text-zinc-400">
-          Seeded by <code className="bg-[#262626] px-1.5 py-0.5 rounded text-cyan-400">python manage.py seed_db</code>. Click any account below to auto-fill.
-        </p>
         <div className="space-y-3 pt-2">
           <button 
             onClick={() => { setUsername('customer'); setPassword('customer1234'); setMode('login'); }}
