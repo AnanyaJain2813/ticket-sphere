@@ -15,8 +15,6 @@ services:
         fromDatabase:
           name: ticketsphere-db
           property: connectionString
-      - key: ALLOWED_HOSTS
-        value: ".onrender.com"
       - key: FRONTEND_URL
         value: "https://ticket-sphere-sand.vercel.app"
       - key: DEFAULT_FROM_EMAIL
