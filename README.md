@@ -1,7 +1,5 @@
 # TicketSphere — High-Concurrency Ticket Booking System
 
-**Author: Ananya Jain**
-
 A production-ready, full-stack event & movie ticket booking platform built with **Python (Django REST Framework & ASGI Channels)** for the backend API and **React 19 + TypeScript + Vite** for the dynamic web frontend.
 
 ---
@@ -9,7 +7,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ## 🔗 Live Deployment
 
 - **Frontend**: https://ticket-sphere-two.vercel.app/
-- **Backend API**: https://ticketsphere-api-ypje.onrender.com/api/
+- **Backend API**: https://web-production-6ecbf.up.railway.app/api/
 
 **Demo Login Credentials:**
 - **Customer**: `customer` / `customer1234`
@@ -26,7 +24,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 | **Real-Time WebSockets** | **Django Channels (Daphne / ASGI)** | Real-time seat map updates & live hold/booking broadcasting |
 | **Frontend Web App** | **React 19, TypeScript, Vite** | Single-page application with responsive interactive seat map grid |
 | **Styling & Icons** | **Tailwind CSS & Lucide Icons** | Custom glassmorphism dark theme with cursor ambient spotlight |
-| **Database** | **PostgreSQL (Production) / SQLite (Local Dev)** | Relational DB with row-level `select_for_update` locking & unique constraints (Render Managed PostgreSQL in production; SQLite for local dev) |
+| **Database** | **PostgreSQL (Production) / SQLite (Local Dev)** | Relational DB with row-level `select_for_update` locking & unique constraints (Railway Managed PostgreSQL in production; SQLite for local dev) |
 | **Task Queue & Cache** | **None** | Completely synchronous and dependency-free |
 | **Email Delivery** | **Django SMTP (Gmail)** | Live M-Ticket email delivery with embedded QR code passes |
 
@@ -58,7 +56,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 ## ⚡ Quickstart & Local Setup
 
 ### Database Configuration & Driver Setup
-- **Production Deployment**: Uses Render's managed **PostgreSQL**. The backend connects using standard `psycopg2-binary` via the `DATABASE_URL` environment variable:
+- **Production Deployment**: Uses Railway's managed **PostgreSQL**. The backend connects using standard `psycopg2-binary` via the `DATABASE_URL` environment variable:
   ```
   DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<dbname>
   ```
@@ -78,7 +76,7 @@ The absolute easiest way to test this project locally is to use the included `st
 # Make the script executable
 chmod +x start.sh
 
-# Run the complete stack (Django + React)
+# Run the complete stack (Django + React + Celery)
 ./start.sh
 ```
 

@@ -5,7 +5,7 @@ import { LayoutDashboard, IndianRupee, Users, PieChart as PieChartIcon, Trending
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 export const OrganiserPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'bookings'>('bookings');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'bookings'>('analytics');
   
   // Analytics State
   const [shows, setShows] = useState<ShowItem[]>([]);

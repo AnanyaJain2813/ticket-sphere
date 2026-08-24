@@ -6,10 +6,10 @@ import { loginApi, registerApi } from '../api';
 export const AuthScreen: React.FC = () => {
   const { login } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [role, setRole] = useState<'customer' | 'organiser'>('organiser');
-  const [username, setUsername] = useState('organizer');
-  const [password, setPassword] = useState('12345678');
-  const [email, setEmail] = useState('organizer@gmail.com');
+  const [role, setRole] = useState<'customer' | 'organiser'>('customer');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

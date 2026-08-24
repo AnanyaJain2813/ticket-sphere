@@ -23,19 +23,15 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [shows, setShows] = useState<ShowItem[]>([]);
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [seats, setSeats] = useState<SeatItem[]>([]);
-  const [isLoadingSeats, setIsLoadingSeats] = useState<boolean>(false);
   const [holdingSeatId, setHoldingSeatId] = useState<string | null>(null);
   const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<{ message: string; x: number; y: number } | null>(null);
   const [showRecruiterModal, setShowRecruiterModal] = useState<boolean>(false);
 
-  const [loading, setLoading] = useState<boolean>(true);
-
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        setLoading(true);
         const data = await getShows();
         setShows(data);
         if (data.length > 0) {
@@ -44,8 +40,6 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       } catch (err) {
         console.error('Failed to load shows:', err);
         setErrorBanner('Failed to load shows from backend API.');
-      } finally {
-        setLoading(false);
       }
     };
     fetchShows();
@@ -53,7 +47,6 @@ export const BookingPage: React.FC<BookingPageProps> = ({
 
   const fetchSeatMap = useCallback(async (showId: string) => {
     try {
-      setIsLoadingSeats(true);
       const seatData = await getShowSeats(showId);
       setSeats(seatData);
       
@@ -74,11 +67,8 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       });
     } catch (err) {
       console.error('Failed to load seat map:', err);
-      setSeats([]);
-    } finally {
-      setIsLoadingSeats(false);
     }
-  }, [activeHolds, setActiveHolds]);
+  }, [setActiveHolds]);
 
   useEffect(() => {
     if (selectedShowId) {
@@ -339,22 +329,15 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       )}
 
       {/* Step 1 Search Wizard: Movie & Showtime Selection */}
-      {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center text-cyan-500 animate-fadeIn space-y-4">
-           <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-           <p className="text-zinc-400 font-bold text-sm">Waking up backend server on Render (may take 50s)...</p>
-        </div>
-      ) : (
-        <SearchWizard
-          shows={shows}
-          selectedShowId={selectedShowId}
-          onSelectShow={setSelectedShowId}
-          onMovieSelect={onMovieSelect}
-        />
-      )}
+      <SearchWizard
+        shows={shows}
+        selectedShowId={selectedShowId}
+        onSelectShow={setSelectedShowId}
+        onMovieSelect={onMovieSelect}
+      />
 
       {/* Step 2 Seat Map View */}
-      {!loading && selectedShow && (
+      {selectedShow && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -374,23 +357,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
             </div>
           </div>
 
-          {isLoadingSeats ? (
-            <div className="py-20 flex flex-col items-center justify-center text-cyan-500 animate-fadeIn space-y-4">
-              <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-zinc-400 font-bold text-sm">Loading Seat Map...</p>
-            </div>
-          ) : seats.length === 0 ? (
-            <div className="py-20 flex flex-col items-center justify-center text-zinc-500 animate-fadeIn space-y-4">
-              <p className="text-sm font-bold">No seats available for this show.</p>
-            </div>
-          ) : (
-            <SeatMap
-              seats={seats}
-              activeHolds={activeHolds}
-              onSeatSelect={handleSeatSelect}
-              loadingSeatId={holdingSeatId}
-            />
-          )}
+          <SeatMap
+            seats={seats}
+            activeHolds={activeHolds}
+            onSeatSelect={handleSeatSelect}
+            loadingSeatId={holdingSeatId}
+          />
         </div>
       )}
 
