@@ -12,15 +12,11 @@ class Command(BaseCommand):
     help = 'Seeds default venues, categories, seats, events, and shows for presentation/judging.'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS("Starting database seeding... Clearing old data..."))
-        
-        # Clear existing data so that changes in venues/shows apply cleanly
-        Show.objects.all().delete()
-        Event.objects.all().delete()
-        Seat.objects.all().delete()
-        SeatLayout.objects.all().delete()
-        Venue.objects.all().delete()
-        SeatCategory.objects.all().delete()
+        if Event.objects.exists():
+            self.stdout.write(self.style.SUCCESS("Database is already seeded. Skipping..."))
+            return
+            
+        self.stdout.write(self.style.SUCCESS("Starting database seeding..."))
 
         # 1. Create Default Users
         admin_user, _ = User.objects.get_or_create(
