@@ -23,10 +23,11 @@ class Command(BaseCommand):
         # Ensure organizer owns all events
         Event.objects.all().update(created_by=organizer_user)
 
-        if Event.objects.filter(title='Interstellar (IMAX 70mm Special)').exists():
-            self.stdout.write(self.style.SUCCESS("Database is already seeded. Skipping rest..."))
-            return
-            
+        # Clear existing venues and shows to ensure the new seat requirements are met
+        self.stdout.write("Wiping old venues and shows for fresh seed...")
+        Show.objects.all().delete()
+        Venue.objects.all().delete()
+        
         self.stdout.write(self.style.SUCCESS("Starting database seeding..."))
 
         # 1. Create Default Users
@@ -101,8 +102,9 @@ class Command(BaseCommand):
                         )
             return venue
 
-        venue1 = create_venue_with_seats('PVR Director\'s Cut', 'Vasant Kunj, New Delhi', 5, 10) # 50 seats
-        venue2 = create_venue_with_seats('PVR ICON IMAX', 'Versova, Mumbai', 1, 10) # 10 seats
+        venue_50 = create_venue_with_seats('PVR Director\'s Cut', 'Vasant Kunj, New Delhi', 5, 10) # 50 seats
+        venue_5 = create_venue_with_seats('PVR ICON IMAX', 'Versova, Mumbai', 1, 5) # 5 seats
+        venue_20 = create_venue_with_seats('Wembley Stadium', 'London, UK', 2, 10) # 20 seats
 
         self.stdout.write(self.style.SUCCESS("Venues and seat layouts created."))
 
@@ -173,17 +175,15 @@ class Command(BaseCommand):
                 ShowSeat.objects.bulk_create(show_seats)
             return show
 
-        # 3 shows for e1 (Interstellar)
-        create_show_and_seats(e1, venue1, now + datetime.timedelta(hours=2), now + datetime.timedelta(hours=5))
-        create_show_and_seats(e1, venue2, now + datetime.timedelta(days=1, hours=3), now + datetime.timedelta(days=1, hours=6))
-        create_show_and_seats(e1, venue1, now + datetime.timedelta(days=2, hours=10), now + datetime.timedelta(days=2, hours=13))
+        # 2 shows for e1 (Interstellar)
+        create_show_and_seats(e1, venue_5, now + datetime.timedelta(hours=2), now + datetime.timedelta(hours=5))
+        create_show_and_seats(e1, venue_50, now + datetime.timedelta(days=1, hours=3), now + datetime.timedelta(days=1, hours=6))
 
-        # 3 shows for e2 (Dune)
-        create_show_and_seats(e2, venue1, now + datetime.timedelta(hours=4), now + datetime.timedelta(hours=7))
-        create_show_and_seats(e2, venue2, now + datetime.timedelta(days=1, hours=6), now + datetime.timedelta(days=1, hours=9))
-        create_show_and_seats(e2, venue1, now + datetime.timedelta(days=2, hours=14), now + datetime.timedelta(days=2, hours=17))
+        # 2 shows for e2 (Dune)
+        create_show_and_seats(e2, venue_5, now + datetime.timedelta(hours=4), now + datetime.timedelta(hours=7))
+        create_show_and_seats(e2, venue_50, now + datetime.timedelta(days=1, hours=6), now + datetime.timedelta(days=1, hours=9))
 
-        # Concert event
-        create_show_and_seats(e3, venue1, now + datetime.timedelta(days=2, hours=8), now + datetime.timedelta(days=2, hours=11))
+        # 1 show for e3 (Coldplay)
+        create_show_and_seats(e3, venue_20, now + datetime.timedelta(days=2, hours=8), now + datetime.timedelta(days=2, hours=11))
 
         self.stdout.write(self.style.SUCCESS("🎉 Database successfully seeded with default venues, events, shows, and seats!"))

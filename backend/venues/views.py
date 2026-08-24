@@ -10,7 +10,7 @@ from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.permissions import IsAdmin
+from accounts.permissions import IsAdmin, IsOrganiserOrAdmin
 from venues.models import Venue, SeatCategory, SeatLayout, Seat
 
 
@@ -26,7 +26,7 @@ class VenueListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsAdmin]
+    permission_classes = [IsOrganiserOrAdmin]
 
     def get(self, request):
         venues = Venue.objects.all().order_by('name')
@@ -158,7 +158,7 @@ class VenueDetailView(APIView):
     Restricted to role='admin'.
     """
 
-    permission_classes = [IsAdmin]
+    permission_classes = [IsOrganiserOrAdmin]
 
     def _get_venue(self, venue_id):
         try:
@@ -228,7 +228,7 @@ class SeatCategoryListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsAdmin]
+    permission_classes = [IsOrganiserOrAdmin]
 
     def get(self, request):
         categories = SeatCategory.objects.all()
@@ -286,7 +286,7 @@ class SeatCategoryDetailView(APIView):
     Seat categories are platform-level definitions managed by admins.
     """
 
-    permission_classes = [IsAdmin]
+    permission_classes = [IsOrganiserOrAdmin]
 
     def _get_category(self, category_id):
         try:

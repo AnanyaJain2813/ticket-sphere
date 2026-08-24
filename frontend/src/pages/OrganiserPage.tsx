@@ -4,8 +4,10 @@ import type { OrganiserRevenueSummary, ShowItem } from '../types';
 import { LayoutDashboard, IndianRupee, Users, PieChart as PieChartIcon, TrendingUp, RefreshCw, PlusCircle, Save, List } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
+import { AdminPage } from './AdminPage';
+
 export const OrganiserPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'bookings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'bookings' | 'venues'>('analytics');
   
   // Analytics State
   const [shows, setShows] = useState<ShowItem[]>([]);
@@ -179,6 +181,16 @@ export const OrganiserPage: React.FC = () => {
             }`}
           >
             <PlusCircle className="w-3.5 h-3.5" /> Publish New Event
+          </button>
+          <button
+            onClick={() => setActiveTab('venues')}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+              activeTab === 'venues'
+                ? 'bg-[#d84e55] text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" /> Venue Builder
           </button>
         </div>
       </div>
@@ -385,6 +397,12 @@ export const OrganiserPage: React.FC = () => {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'venues' && (
+        <div className="animate-fadeIn">
+          <AdminPage />
         </div>
       )}
 
