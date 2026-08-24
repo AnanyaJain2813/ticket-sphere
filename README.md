@@ -94,7 +94,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install Python backend dependencies
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 
 # Run database migrations & seed presentation dataset
 python manage.py migrate

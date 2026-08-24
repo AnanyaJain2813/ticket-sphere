@@ -3,7 +3,7 @@
 set -o errexit
 
 echo "=== Building Backend on Render ==="
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 
 echo "=== Running Migrations ==="
 python backend/manage.py migrate --noinput

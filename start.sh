@@ -6,7 +6,7 @@ echo "📦 Setting up Python Virtual Environment..."
 cd backend
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt --quiet
+pip install -r ../requirements.txt --quiet
 
 echo "🗄️ Running Database Migrations (SQLite)..."
 python manage.py migrate
