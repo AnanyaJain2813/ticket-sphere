@@ -76,7 +76,10 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL')],
+            'hosts': [
+                (os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0'), 
+                 {'health_check_interval': 25, 'socket_keepalive': True})
+            ],
         },
     },
 }
@@ -238,6 +241,11 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL = 25
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'health_check_interval': 25,
+    'socket_keepalive': True
+}
 
 # Seat Hold Configuration
 HOLD_TTL_MINUTES = int(env('HOLD_TTL_MINUTES', default=10))
