@@ -15,11 +15,6 @@ env = environ.Env(
     CORS_ALLOWED_ORIGINS=(str, 'https://ticket-sphere-sand.vercel.app'),
     HOLD_TTL_MINUTES=(int, 10),
     BREVO_API_KEY=(str, ""),
-    EMAIL_HOST=(str, 'smtp.gmail.com'),
-    EMAIL_PORT=(int, 587),
-    EMAIL_USE_TLS=(bool, True),
-    EMAIL_HOST_USER=(str, 'jainananya2800@gmail.com'),
-    EMAIL_HOST_PASSWORD=(str, ''),
     DEFAULT_FROM_EMAIL=(str, 'jainananya2800@gmail.com'),
 )
 
@@ -218,18 +213,5 @@ HOLD_TTL_MINUTES = env('HOLD_TTL_MINUTES')
 # ─────────────────────────────────────────
 # EMAIL  (Django built-in SMTP — Gmail works fine)
 # ─────────────────────────────────────────
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-
-if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-elif 'test' in sys.argv:
-    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 BREVO_API_KEY = env('BREVO_API_KEY')

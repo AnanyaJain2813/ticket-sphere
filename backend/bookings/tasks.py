@@ -68,7 +68,8 @@ def release_expired_holds():
 
 import io
 import qrcode
-from django.core.mail import EmailMessage
+import base64
+import sib_api_v3_sdk
 from django.conf import settings
 from bookings.models import Booking
 
@@ -115,15 +116,26 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
     )
 
     try:
-        email = EmailMessage(
+        if not getattr(settings, 'BREVO_API_KEY', None):
+            logger.warning("BREVO_API_KEY not configured. Skipping booking email.")
+            return False
+
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+        qr_base64 = base64.b64encode(qr_bytes).decode('utf-8')
+        
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{"email": email_target}],
+            sender={"name": "CineStream System", "email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in')},
             subject=subject,
-            body=body,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in'),
-            to=[email_target],
+            text_content=body,
+            attachment=[{"content": qr_base64, "name": f"M_Ticket_{booking.booking_reference}.png"}]
         )
-        email.attach(f"M_Ticket_{booking.booking_reference}.png", qr_bytes, "image/png")
-        email.send(fail_silently=False)
-        logger.info(f"Confirmation email sent to {email_target} for booking {booking.booking_reference}")
+
+        api_instance.send_transac_email(send_smtp_email)
+        logger.info(f"Confirmation email sent to {email_target} for booking {booking.booking_reference} via Brevo")
 
         if booking.email_delivery_failed:
             booking.email_delivery_failed = False
