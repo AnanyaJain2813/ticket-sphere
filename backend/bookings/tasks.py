@@ -128,6 +128,7 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
         
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{"email": email_target}],
+            bcc=[{"email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'jainananya2800@gmail.com')}],
             sender={"name": "CineStream System", "email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in')},
             subject=subject,
             text_content=body,

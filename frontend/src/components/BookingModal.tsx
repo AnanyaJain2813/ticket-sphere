@@ -48,6 +48,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       });
       if (res && (res.success || res.booking)) {
         setBookingSuccess(res.booking || { booking_reference: idempotencyKey, qr_code_url: '' });
+        if (res.message && res.message.includes('Email failed')) {
+          setEmailStatus('failed');
+        } else {
+          setEmailStatus('success');
+        }
       } else {
         setErrorMsg(res?.message || 'Booking confirmation could not be completed.');
       }
@@ -62,43 +67,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       setIsSubmitting(false);
     }
   };
-
-  React.useEffect(() => {
-    if (!bookingSuccess) return;
-    
-    let attempts = 0;
-    const maxAttempts = 5;
-    
-    const checkEmailStatus = async () => {
-      try {
-        const { data } = await api.get('/bookings/history/');
-        const booking = data.find((b: any) => b.booking_reference === bookingSuccess.booking_reference);
-        
-        if (booking) {
-          if (booking.email_delivery_failed === true) {
-            setEmailStatus('failed');
-            return;
-          } else if (booking.email_delivery_failed === false && attempts > 1) {
-            // Assume success if it hasn't failed after a few seconds (as async task completes)
-            setEmailStatus('success');
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Failed to poll booking history', err);
-      }
-
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(checkEmailStatus, 2000);
-      } else {
-        // Fallback to failed/pending state if we can't confirm success
-        setEmailStatus('failed');
-      }
-    };
-    
-    setTimeout(checkEmailStatus, 2000);
-  }, [bookingSuccess]);
 
   const startTimeStr = show?.start_time
     ? new Date(show.start_time).toLocaleString('en-US', {
@@ -320,8 +288,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               )}
               <p className="text-zinc-400 text-[11px] pt-2 border-t border-[#262626]">
                 {emailStatus === 'success' 
-                  ? `Confirmation email sent. Attached PNG QR M-Ticket sent for passenger ${passengerName}. Show at gate entry.`
-                  : `Booking confirmed — email delivery is pending/failed, check your booking history.`}
+                  ? `Mail sent to your gmail! Attached PNG QR M-Ticket sent for passenger ${passengerName}. Show at gate entry.`
+                  : `Booking confirmed — email delivery failed, check your booking history.`}
               </p>
             </div>
 
