@@ -3,8 +3,8 @@ services:
     name: ticketsphere-api
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python kill_idle_connections.py && python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py seed_db
-    startCommand: ASGI_THREADS=4 python -m gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --workers 1 --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && python manage.py seed_db && ASGI_THREADS=4 python -m gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --workers 1 --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: DEBUG
