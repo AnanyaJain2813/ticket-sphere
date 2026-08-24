@@ -237,6 +237,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Celery & Redis
 REDIS_URL_VAL = os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
 CELERY_BROKER_URL = REDIS_URL_VAL
+CELERY_RESULT_BACKEND = 'disabled://'
 CELERY_IGNORE_RESULT = True
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
