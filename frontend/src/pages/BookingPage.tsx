@@ -4,7 +4,6 @@ import type { ShowItem, SeatItem, ActiveHold } from '../types';
 import { SeatMap } from '../components/SeatMap';
 import { BookingModal } from '../components/BookingModal';
 import { WaitlistSection } from '../components/WaitlistSection';
-import { RecruiterShowcaseModal } from '../components/RecruiterShowcaseModal';
 import { SearchWizard } from '../components/SearchWizard';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { RefreshCw } from 'lucide-react';
@@ -27,7 +26,6 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<{ message: string; x: number; y: number } | null>(null);
-  const [showRecruiterModal, setShowRecruiterModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -408,10 +406,6 @@ export const BookingPage: React.FC<BookingPageProps> = ({
         />
       )}
 
-      {/* Recruiter Deliverables Modal */}
-      {showRecruiterModal && (
-        <RecruiterShowcaseModal onClose={() => setShowRecruiterModal(false)} />
-      )}
     </div>
   );
 };
