@@ -429,25 +429,28 @@ def confirm_booking(show_seat_id, user, idempotency_key, customer_name=None, cus
                     status='confirmed'
                 )
                 
-                # Trigger confirmation email & SMS task synchronously
+                # Trigger confirmation email & SMS task synchronously before returning
                 from bookings.tasks import dispatch_email_for_booking
+                email_status_msg = ""
+                try:
+                    dispatch_email_for_booking(booking.id, customer_email, customer_name, customer_phone)
+                except Exception as e:
+                    import traceback
+                    print(f"Failed to send email synchronously: {e}")
+                    traceback.print_exc()
+                    email_status_msg = f" (Email failed: {str(e)})"
+
                 def _on_commit_actions():
-                    try:
-                        dispatch_email_for_booking(booking.id, customer_email, customer_name, customer_phone)
-                    except Exception as e:
-                        print(f"Failed to send email synchronously: {e}")
                     broadcast_seat_updates(seat.show_id, [{
                         'id': str(seat.id),
                         'status': 'booked',
-                        'hold_expires_at': None
                     }])
-
                 transaction.on_commit(_on_commit_actions)
                 
                 return ConfirmBookingResult(
                     success=True,
                     reason='booked',
-                    message='Booking confirmed successfully.',
+                    message=f'Seat successfully booked.{email_status_msg}',
                     booking=booking
                 )
 
