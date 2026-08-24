@@ -43,6 +43,9 @@ class UserWaitlistView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from bookings.tasks import cleanup_expired_holds_and_offers
+        cleanup_expired_holds_and_offers()
+
         entries = WaitlistEntry.objects.filter(
             user=request.user
         ).select_related('show', 'show__event', 'category').order_by('-created_at')

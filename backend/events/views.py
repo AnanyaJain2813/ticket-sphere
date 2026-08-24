@@ -97,6 +97,9 @@ class ShowListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from bookings.tasks import cleanup_expired_holds_and_offers
+        cleanup_expired_holds_and_offers()
+        
         shows = Show.objects.select_related('event', 'venue').annotate(
             total_seats=Count('show_seats'),
             available_seats=Count('show_seats', filter=Q(show_seats__status='available'))
@@ -222,21 +225,8 @@ class ShowSeatMapView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, show_id):
-        # 1. Clean up any expired holds before querying
-        now = timezone.now()
-        expired_seat_ids = list(ShowSeat.objects.filter(
-            show_id=show_id,
-            status='held',
-            hold_expires_at__lte=now,
-            is_waitlist_offer=False
-        ).values_list('id', flat=True))
-
-        if expired_seat_ids:
-            ShowSeat.objects.filter(id__in=expired_seat_ids).update(
-                status='available',
-                holder=None,
-                hold_expires_at=None
-            )
+        from bookings.tasks import cleanup_expired_holds_and_offers
+        cleanup_expired_holds_and_offers()
 
         seats = ShowSeat.objects.filter(show_id=show_id).select_related(
             'seat', 'category', 'show', 'show__venue'

@@ -35,9 +35,7 @@ export const AboutPage: React.FC = () => {
             <Database size={20} color="#0891b2" /> Infrastructure & Services
           </h3>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#475569', lineHeight: 1.8 }}>
-            <li><strong>MySQL 8.0</strong>: Relational store with ACID guarantees and row-level locking.</li>
-            <li><strong>Redis 7</strong>: Cache & Celery message broker for periodic TTL hold expiration.</li>
-            <li><strong>Docker Compose</strong>: Single-command environment orchestration.</li>
+            <li><strong>PostgreSQL</strong>: Database with ACID compliance and row-level locking.</li>
           </ul>
         </div>
 

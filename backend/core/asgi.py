@@ -17,5 +17,3 @@ application = ProtocolTypeRouter({
     ),
 })
 
-from core.scheduler import start_scheduler
-start_scheduler()

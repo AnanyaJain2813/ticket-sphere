@@ -18,13 +18,6 @@ echo "🎬 Starting Django Backend Server on port 8005..."
 python manage.py runserver 8005 &
 BACKEND_PID=$!
 
-echo "⚙️ Starting Celery Worker..."
-celery -A core worker -l info &
-CELERY_WORKER_PID=$!
-
-echo "⏱️ Starting Celery Beat Scheduler..."
-celery -A core beat -l info &
-CELERY_BEAT_PID=$!
 
 cd ..
 
@@ -42,5 +35,5 @@ echo "✅ All services started! TicketSphere is running."
 echo "Press Ctrl+C to stop all services."
 
 # Wait for user interrupt
-trap "echo '🛑 Stopping all services...'; kill $BACKEND_PID $CELERY_WORKER_PID $CELERY_BEAT_PID $FRONTEND_PID; exit" INT TERM
+trap "echo '🛑 Stopping all services...'; kill $BACKEND_PID $FRONTEND_PID; exit" INT TERM
 wait

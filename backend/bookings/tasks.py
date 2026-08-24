@@ -8,6 +8,20 @@ logger = logging.getLogger(__name__)
 
 from bookings.services import broadcast_seat_updates
 
+def cleanup_expired_holds_and_offers():
+    """
+    Synchronously cleans up expired holds and waitlist offers.
+    This replaces the background scheduler, ensuring consistency exactly when needed.
+    """
+    from waitlist.tasks import expire_waitlist_offers
+    
+    # First, expire any waitlist offers so their seats become 'held' or 'available'
+    expire_waitlist_offers()
+    
+    # Second, release any regular expired holds
+    release_expired_holds()
+
+
 def release_expired_holds():
     """
     Periodically releases expired seat holds back to 'available'.

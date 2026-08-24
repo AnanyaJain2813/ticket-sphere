@@ -81,36 +81,18 @@ def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in
     </html>
     """
 
-    if not getattr(settings, 'BREVO_API_KEY', None):
-        logger.warning("BREVO_API_KEY not configured. Falling back to Django SMTP for waitlist email.")
-        from django.core.mail import send_mail
-        from django.utils.html import strip_tags
-        send_mail(
-            subject="Great News! A Seat Freed Up!",
-            message=strip_tags(html_content),
-            html_message=html_content,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in'),
-            recipient_list=[user_email],
-            fail_silently=False,
-        )
-        return
-
-    import sib_api_v3_sdk
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = settings.BREVO_API_KEY
-
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=[{"email": user_email}],
-        reply_to={"email": "noreply@cinestream.com", "name": "CineStream System"},
-        html_content=html_content,
-        sender={"name": "CineStream Tickets", "email": "tickets@cinestream.com"},
-        subject="Your CineStream Waitlist Offer is Ready!"
+    from django.core.mail import EmailMessage
+    
+    email = EmailMessage(
+        subject="Your CineStream Waitlist Offer is Ready!",
+        body=html_content,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in'),
+        to=[user_email],
     )
-
+    email.content_subtype = "html"
     try:
-        api_response = api_instance.send_transac_email(send_smtp_email)
-        logger.info(f"Waitlist offer email sent to {user_email}. Message ID: {api_response.message_id}")
+        email.send(fail_silently=False)
+        logger.info(f"Waitlist offer email sent to {user_email}.")
     except Exception as e:
         logger.error(f"Failed to send waitlist email to {user_email}: {e}")
+

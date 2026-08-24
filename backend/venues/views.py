@@ -26,8 +26,7 @@ class VenueListView(APIView):
     Restricted to IsAdmin.
     """
 
-    from rest_framework.permissions import IsAuthenticated
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdmin]
 
     def get(self, request):
         venues = Venue.objects.all().order_by('name')
@@ -229,8 +228,7 @@ class SeatCategoryListView(APIView):
     Restricted to IsAdmin.
     """
 
-    from rest_framework.permissions import IsAuthenticated
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdmin]
 
     def get(self, request):
         categories = SeatCategory.objects.all()

@@ -23,8 +23,8 @@ WHY CONSTRAINTS LIVE AT THE DATABASE LEVEL, NOT JUST IN SERIALIZER / APP CODE
    as a clean 409 Conflict.
 
 2. MULTIPLE ENTRY POINTS:
-   Data can be written via the Django admin, management commands, Celery
-   tasks, raw SQL migrations, or a future microservice. Serializer
+   Data can be written via the Django admin, management commands,
+   raw SQL migrations, or a future microservice. Serializer
    validation only guards the DRF endpoint — it is trivially bypassed
    by any other writer. DB constraints guard ALL writes.
 
@@ -111,7 +111,7 @@ class ShowSeat(models.Model):
         # CHECK constraint in the migration. This is enforced by
         # the database engine on EVERY write (INSERT, UPDATE),
         # regardless of whether the write came from Django ORM,
-        # raw SQL, admin, or a Celery task. App-level clean()
+        # raw SQL, admin, or a management command. App-level clean()
         # validation alone cannot provide this guarantee.
         # ------------------------------------------------------------------
         constraints = [

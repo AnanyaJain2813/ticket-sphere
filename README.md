@@ -25,8 +25,8 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 | **Frontend Web App** | **React 19, TypeScript, Vite** | Single-page application with responsive interactive seat map grid |
 | **Styling & Icons** | **Tailwind CSS & Lucide Icons** | Custom glassmorphism dark theme with cursor ambient spotlight |
 | **Database** | **PostgreSQL (Production) / SQLite (Local Dev)** | Relational DB with row-level `select_for_update` locking & unique constraints (Railway Managed PostgreSQL in production; SQLite for local dev) |
-| **Task Queue & Cache** | **Celery 5 & Redis 7** | Asynchronous background hold release & waitlist offer expiration |
-| **Email Delivery** | **Brevo SMTP (Sendinblue)** | Live M-Ticket email delivery with embedded QR code passes |
+| **Task Queue & Cache** | **None** | Completely synchronous and dependency-free |
+| **Email Delivery** | **Django SMTP (Gmail)** | Live M-Ticket email delivery with embedded QR code passes |
 
 *(Note: Node.js 18+ is used locally as the JavaScript development environment to compile and bundle the React frontend).*
 
@@ -46,7 +46,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 - 🎟️ **Interactive Seat Layout Map**: Visual layout grid with real-time status indicators (Available, Held, Booked).
 - ⏱️ **Atomic Seat Hold & TTL Engine**: Configurable 10-minute hold timer with animated countdown ring and automatic background hold release.
 - 🔒 **Concurrency & Double-Booking Protection**: Database row locking via `select_for_update()` inside atomic transactions; Idempotency header protection on booking requests.
-- 📲 **Live Email Delivery Polling**: Asynchronous Brevo SMTP email integration. The UI silently polls the backend to verify actual email delivery status and dynamically updates the confirmation screen (Success vs Pending).
+- 📲 **Live Email Delivery Polling**: Asynchronous standard SMTP email integration. The UI silently polls the backend to verify actual email delivery status and dynamically updates the confirmation screen (Success vs Pending).
 - ⏳ **Automated Category Waitlist**: When an event sells out, users can join a waitlist per seat category (`VIP`, `Premium`, `Standard`). When a booking is cancelled, seats are automatically assigned to the next waitlisted customer with a time-limited offer window.
 - 📊 **Organiser Revenue & Active Database Analytics**: Real-time revenue summary, occupancy rate metrics, and a dynamic table exposing the active database shows directly in the organiser dashboard.
 - 🛠️ **Admin Venue & Layout Builder**: Interactive 2D grid builder for creating complex seating layouts (rows, columns, categories).
@@ -63,9 +63,8 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 - **Local Development**: Defaults to **SQLite** (`db.sqlite3`) for instant zero-config setup. You can also connect to a local PostgreSQL instance or Docker container (`docker-compose up -d`) by setting `DATABASE_URL` or standard PostgreSQL environment variables in `.env`.
 
 ### Prerequisites
-- **Python 3.9+** (For Django Backend)
-- **Node.js 18+** (For React Frontend compilation)
-- **Redis Server** (Required for Celery background tasks and Websockets)
+- **Python 3.10+**
+- **Node.js 18+**
 
 ---
 
@@ -122,7 +121,7 @@ npm run dev -- --port 5175
 ### 3. SMTP Email Configuration (Optional)
 By default, the backend simulates email delivery by printing to the terminal console (to prevent crashes on unconfigured environments). To test real email delivery:
 1. Create a `backend/.env` file.
-2. Add your Brevo SMTP credentials (see `backend/.env.example`).
+2. Add your Gmail App Password credentials (see `backend/.env.example`).
 3. Restart the backend server. The UI will automatically poll and display actual email delivery successes!
 
 ---

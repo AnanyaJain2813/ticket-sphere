@@ -11,8 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     DEBUG=(bool, False),
-    DJANGO_SECRET_KEY=(str, 'django-insecure-change-me-in-production'),
-    FRONTEND_URL=(str, 'http://localhost:5173'),
+    SECRET_KEY=(str, 'django-insecure-change-me-in-production'),
+    CORS_ALLOWED_ORIGINS=(str, 'http://localhost:5173'),
     HOLD_TTL_MINUTES=(int, 10),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
     EMAIL_PORT=(int, 587),
@@ -27,7 +27,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # ─────────────────────────────────────────
 # CORE
 # ─────────────────────────────────────────
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = [
@@ -192,18 +192,16 @@ REST_FRAMEWORK = {
 # ─────────────────────────────────────────
 # CORS
 # ─────────────────────────────────────────
-FRONTEND_URL = env('FRONTEND_URL')
+FRONTEND_URLS = [url.strip() for url in env('CORS_ALLOWED_ORIGINS').split(',')]
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,
+CORS_ALLOWED_ORIGINS = FRONTEND_URLS + [
     'https://ticket-sphere-sand.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    FRONTEND_URL,
+CSRF_TRUSTED_ORIGINS = FRONTEND_URLS + [
     'https://ticket-sphere-sand.vercel.app',
     'http://localhost:5173',
 ]

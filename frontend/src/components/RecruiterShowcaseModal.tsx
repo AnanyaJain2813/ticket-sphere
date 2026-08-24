@@ -83,23 +83,12 @@ export const RecruiterShowcaseModal: React.FC<RecruiterShowcaseModalProps> = ({ 
             </p>
           </div>
 
-          {/* Celery & WebSockets Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#1c1d2b] p-4 rounded-2xl border border-[#2e3046] space-y-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Cpu className="w-4 h-4 text-purple-400" /> 4. Celery Beat TTL Sweeper
-              </div>
-              <p className="text-zinc-400 leading-relaxed text-[11px]">
-                Periodic task running every 30s comparing server database time (<code className="text-white">Now()</code>) to clear expired seat holds safely across worker replicas.
-              </p>
-            </div>
-
             <div className="bg-[#1c1d2b] p-4 rounded-2xl border border-[#2e3046] space-y-2">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <Mail className="w-4 h-4 text-emerald-400" /> 5. QR Code M-Tickets & Email
               </div>
               <p className="text-zinc-400 leading-relaxed text-[11px]">
-                In-memory PNG QR code generation attached to confirmation emails, with Celery retries (exponential backoff) and <code className="text-white">email_delivery_failed</code> fallback flags.
+                In-memory PNG QR code generation attached to confirmation emails using standard Django SMTP with robust fallback flags.
               </p>
             </div>
           </div>

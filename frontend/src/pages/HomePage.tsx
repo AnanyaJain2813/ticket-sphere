@@ -43,7 +43,7 @@ export const HomePage: React.FC = () => {
           Ticket Booking System
         </h1>
         <p style={{ fontSize: '18px', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
-          Django + DRF Backend with MySQL/Redis & React + Vite + Router Frontend.
+          Django + DRF Backend with PostgreSQL & React + Vite + Router Frontend.
         </p>
       </header>
 
@@ -134,9 +134,9 @@ export const HomePage: React.FC = () => {
 
         <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
           <Database size={28} color="#0891b2" style={{ marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>MySQL & Redis Containerization</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>PostgreSQL Database</h3>
           <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.5, margin: 0 }}>
-            Ready for local deployment via <code>docker-compose.yml</code> and configurable environment variables.
+            Reliable, ACID-compliant relational data modeling.
           </p>
         </div>
 
