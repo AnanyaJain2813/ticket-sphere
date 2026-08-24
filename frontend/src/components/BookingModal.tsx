@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import type { ShowItem, ActiveHold } from '../types';
 import { HoldCountdownRing } from './HoldCountdownRing';
-import { CreditCard, QrCode, CheckCircle2, AlertCircle, X, ShieldCheck, Ticket, MapPin, User, Mail, Film, Calendar, Clock } from 'lucide-react';
-import { api } from '../api/client';
+import { CreditCard, QrCode, CheckCircle2, AlertCircle, X, ShieldCheck, Ticket, MapPin, User, Mail, Film, Calendar, Clock, Phone } from 'lucide-react';
+import api from '../api/client';
 
 interface BookingModalProps {
   activeHolds: ActiveHold[];
