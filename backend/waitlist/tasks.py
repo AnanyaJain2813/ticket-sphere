@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.db import transaction
 from django.db.models.functions import Now
 from waitlist.models import WaitlistEntry
@@ -8,7 +7,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@shared_task
 def expire_waitlist_offers():
     """
     Periodically scans for expired 'offered' waitlist entries.
@@ -65,7 +63,6 @@ def expire_waitlist_offers():
 
 from django.conf import settings
 
-@shared_task
 def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in_minutes):
     """
     Sends an email notifying a user that a waitlist seat is now available for them.

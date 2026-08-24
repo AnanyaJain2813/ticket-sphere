@@ -75,12 +75,17 @@ def promote_waitlist_for_seat(seat):
                     'status': 'held',
                     'hold_expires_at': offer_expiry.isoformat()
                 }])
-                dispatch_waitlist_offer_email.delay(
-                    entry.user.email,
-                    f"{seat.seat.row_name}{seat.seat.col_number}",
-                    seat.show.event.title,
-                    ttl_minutes
-                )
+                import threading
+                threading.Thread(
+                    target=dispatch_waitlist_offer_email,
+                    args=(
+                        entry.user.email,
+                        f"{seat.seat.row_name}{seat.seat.col_number}",
+                        seat.show.event.title,
+                        ttl_minutes
+                    ),
+                    daemon=True
+                ).start()
                 
             transaction.on_commit(_on_commit)
             

@@ -80,13 +80,7 @@ REDIS_URL = (
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [REDIS_URL],
-            'capacity': 1500,
-            'expiry': 10,
-            'group_expiry': 86400,
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
@@ -239,38 +233,8 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     'idempotencykey',
 ]
 
-# Celery & Redis
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = None
-CELERY_TASK_IGNORE_RESULT = True
-CELERY_IGNORE_RESULT = True
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_BROKER_CONNECTION_MAX_RETRIES = None
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'socket_timeout': 10,
-    'socket_connect_timeout': 10,
-    'retry_on_timeout': True,
-}
-
 # Seat Hold Configuration
 HOLD_TTL_MINUTES = int(env('HOLD_TTL_MINUTES', default=10))
-
-# Celery Beat Schedule
-CELERY_BEAT_SCHEDULE = {
-    'release-expired-holds-every-30-seconds': {
-        'task': 'bookings.tasks.release_expired_holds',
-        'schedule': 30.0,
-    },
-    'expire-waitlist-offers-every-30-seconds': {
-        'task': 'waitlist.tasks.expire_waitlist_offers',
-        'schedule': 30.0,
-    },
-}
 
 # Email Configuration (Brevo 300 Free Emails/day or Console fallback)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')

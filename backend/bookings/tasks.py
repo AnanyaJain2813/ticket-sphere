@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.db import transaction
 from django.db.models.functions import Now
 from django.db.models import Q
@@ -9,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 from bookings.services import broadcast_seat_updates
 
-@shared_task
 def release_expired_holds():
     """
     Periodically releases expired seat holds back to 'available'.
@@ -150,25 +148,5 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
     return True
 
 
-@shared_task(bind=True, max_retries=3)
-def send_booking_confirmation_email(self, booking_id):
-    """
-    Generates a QR code for the booking reference and emails the confirmation to the customer.
-    Retries up to 3 times with exponential backoff on failure.
-    If all attempts fail, sets booking.email_delivery_failed = True.
-    """
-    try:
-        return dispatch_email_for_booking(booking_id)
-    except Exception as exc:
-        retries = getattr(self.request, 'retries', 0) if hasattr(self, 'request') else 0
-        logger.warning(f"Attempt {retries + 1}/{self.max_retries} failed for booking {booking_id}: {exc}")
-        if retries >= self.max_retries - 1:
-            Booking.objects.filter(id=booking_id).update(email_delivery_failed=True)
-            logger.error(f"Marked email_delivery_failed=True for booking {booking_id} after {self.max_retries} failed attempts.")
-            raise exc
-        else:
-            countdown = 2 ** (retries + 1)
-            if hasattr(self, 'retry'):
-                raise self.retry(exc=exc, countdown=countdown)
-            raise exc
+# Booking confirmation task wrapper removed in favor of direct execution
 

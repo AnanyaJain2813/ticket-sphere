@@ -569,8 +569,13 @@ def retrigger_booking_email(booking_id, user):
         if booking.status != 'confirmed':
             return {'success': False, 'reason': 'not_confirmed', 'message': 'Booking is not confirmed.'}
         
-        from bookings.tasks import send_booking_confirmation_email
-        send_booking_confirmation_email.delay(str(booking.id))
+        import threading
+        from bookings.tasks import dispatch_email_for_booking
+        threading.Thread(
+            target=dispatch_email_for_booking,
+            args=(str(booking.id),),
+            daemon=True
+        ).start()
         return {'success': True, 'reason': 'email_queued', 'message': 'Confirmation email resend queued.'}
     except Booking.DoesNotExist:
         return {'success': False, 'reason': 'booking_not_found', 'message': 'Booking not found.'}
