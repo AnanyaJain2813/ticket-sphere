@@ -285,7 +285,7 @@ def release_seat(show_seat_id, user):
         return {'success': False, 'message': str(e)}
 
 import base64
-from bookings.tasks import generate_qr_code_bytes
+
 
 class ConfirmBookingResult:
     __slots__ = ('success', 'reason', 'message', 'booking', 'is_idempotent')
@@ -324,6 +324,7 @@ class ConfirmBookingResult:
                 f"Ref: {self.booking.booking_reference}"
             )
             
+            from bookings.tasks import generate_qr_code_bytes
             qr_bytes = generate_qr_code_bytes(qr_text)
             qr_b64 = base64.b64encode(qr_bytes).decode('utf-8')
             data['booking'] = {
