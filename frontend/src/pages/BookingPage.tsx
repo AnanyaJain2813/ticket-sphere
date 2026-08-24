@@ -374,12 +374,23 @@ export const BookingPage: React.FC<BookingPageProps> = ({
             </div>
           </div>
 
-          <SeatMap
-            seats={seats}
-            activeHolds={activeHolds}
-            onSeatSelect={handleSeatSelect}
-            loadingSeatId={holdingSeatId}
-          />
+          {isLoadingSeats ? (
+            <div className="py-20 flex flex-col items-center justify-center text-cyan-500 animate-fadeIn space-y-4">
+              <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-zinc-400 font-bold text-sm">Loading Seat Map...</p>
+            </div>
+          ) : seats.length === 0 ? (
+            <div className="py-20 flex flex-col items-center justify-center text-zinc-500 animate-fadeIn space-y-4">
+              <p className="text-sm font-bold">No seats available for this show.</p>
+            </div>
+          ) : (
+            <SeatMap
+              seats={seats}
+              activeHolds={activeHolds}
+              onSeatSelect={handleSeatSelect}
+              loadingSeatId={holdingSeatId}
+            />
+          )}
         </div>
       )}
 
