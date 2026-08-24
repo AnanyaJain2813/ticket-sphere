@@ -48,8 +48,8 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 - 🔒 **Concurrency & Double-Booking Protection**: Database row locking via `select_for_update()` inside atomic transactions; Idempotency header protection on booking requests.
 - 📲 **Live Email Delivery Polling**: Asynchronous standard SMTP email integration. The UI silently polls the backend to verify actual email delivery status and dynamically updates the confirmation screen (Success vs Pending).
 - ⏳ **Automated Category Waitlist**: When an event sells out, users can join a waitlist per seat category (`VIP`, `Premium`, `Standard`). When a booking is cancelled, seats are automatically assigned to the next waitlisted customer with a time-limited offer window.
-- 📊 **Organiser Revenue & Active Database Analytics**: Real-time revenue summary, occupancy rate metrics, and a dynamic table exposing the active database shows directly in the organiser dashboard.
-- 🛠️ **Admin Venue & Layout Builder**: Interactive 2D grid builder for creating complex seating layouts (rows, columns, categories).
+- 📊 **Organiser Dashboard (Listings & Analytics)**: Organisers can register, log in, and create movie or event listings with venue, date, time, and per-category pricing. They also have access to real-time revenue summary, occupancy metrics, and a live database table of bookings.
+- 🛠️ **Admin Venue & Layout Builder**: Admins create and manage venues with seat layout and seat categories (e.g. Premium, Standard) using an interactive 2D grid builder for complex seating layouts.
 
 ---
 
