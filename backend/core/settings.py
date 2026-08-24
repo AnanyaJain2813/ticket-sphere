@@ -12,15 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'django-insecure-change-me-in-production'),
-    CORS_ALLOWED_ORIGINS=(str, 'http://localhost:5173'),
+    CORS_ALLOWED_ORIGINS=(str, 'https://ticket-sphere-sand.vercel.app'),
     HOLD_TTL_MINUTES=(int, 10),
     BREVO_API_KEY=(str, ""),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
     EMAIL_PORT=(int, 587),
     EMAIL_USE_TLS=(bool, True),
-    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_USER=(str, 'jainananya2800@gmail.com'),
     EMAIL_HOST_PASSWORD=(str, ''),
-    DEFAULT_FROM_EMAIL=(str, 'tickets@cinestream.in'),
+    DEFAULT_FROM_EMAIL=(str, 'jainananya2800@gmail.com'),
 )
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
