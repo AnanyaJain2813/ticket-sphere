@@ -18,6 +18,7 @@ export const useWebSocket = ({
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
   const isFirstConnect = useRef<boolean>(true);
+  const intentionalCloseRef = useRef<boolean>(false);
 
   const connect = useCallback(() => {
     if (!showId) return;
@@ -28,6 +29,7 @@ export const useWebSocket = ({
     console.log(`Connecting to WebSocket: ${wsUrl}`);
     const ws = new WebSocket(wsUrl);
     socketRef.current = ws;
+    intentionalCloseRef.current = false;
 
     ws.onopen = () => {
       console.log('WebSocket connected');
@@ -52,6 +54,10 @@ export const useWebSocket = ({
     };
 
     ws.onclose = () => {
+      if (intentionalCloseRef.current) {
+        console.log('WebSocket closed intentionally.');
+        return;
+      }
       console.log('WebSocket disconnected. Attempting reconnect in 3s...');
       setIsConnected(false);
       reconnectTimeoutRef.current = window.setTimeout(() => {
@@ -70,6 +76,7 @@ export const useWebSocket = ({
     connect();
 
     return () => {
+      intentionalCloseRef.current = true;
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
