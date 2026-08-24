@@ -1,8 +1,13 @@
 import axios from 'axios';
 import type { EventItem, ShowItem, SeatItem, BookingItem, OrganiserRevenueSummary } from '../types';
 
+let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+if (rawBaseUrl && !rawBaseUrl.endsWith('/api') && !rawBaseUrl.endsWith('/api/')) {
+  rawBaseUrl = rawBaseUrl.replace(/\/$/, '') + '/api';
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  baseURL: rawBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },
