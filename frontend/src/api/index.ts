@@ -144,3 +144,8 @@ export const createShowApi = async (data: any) => {
 };
 
 export default api;
+
+export const getOrganiserBookings = async (): Promise<any[]> => {
+  const res = await api.get('/organiser/bookings/');
+  return res.data;
+};

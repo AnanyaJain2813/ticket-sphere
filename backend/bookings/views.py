@@ -256,3 +256,43 @@ class OrganiserRevenueSummaryView(APIView):
             'occupancy_rate_percent': occupancy_rate,
         }
         return Response(data, status=status.HTTP_200_OK)
+
+class OrganiserBookingsListView(APIView):
+    """
+    GET /api/organiser/bookings/
+    
+    Returns a list of all bookings for events owned by the organiser.
+    """
+    permission_classes = [IsOrganiserOrAdmin]
+
+    def get(self, request):
+        user = request.user
+        from django.db.models import Q
+        
+        if user.role == 'admin':
+            bookings = Booking.objects.all()
+        else:
+            bookings = Booking.objects.filter(
+                Q(show__event__created_by=user) | Q(show__event__created_by__isnull=True)
+            )
+            
+        bookings = bookings.select_related('user', 'show__event', 'show__venue', 'show_seat__seat', 'show_seat__category').order_by('-created_at')
+        
+        data = []
+        for b in bookings:
+            data.append({
+                'id': str(b.id),
+                'booking_reference': b.booking_reference,
+                'status': b.status,
+                'customer_name': b.user.username if b.user else 'Guest',
+                'customer_email': b.user.email if b.user else '',
+                'customer_phone': '',
+                'movie': b.show.event.title,
+                'show_date': b.show.start_time.strftime('%b %d, %Y'),
+                'show_time': b.show.start_time.strftime('%I:%M %p'),
+                'seat': f"{b.show_seat.seat.row_name}{b.show_seat.seat.col_number}" if getattr(b, 'show_seat', None) and getattr(b.show_seat, 'seat', None) else 'N/A',
+                'amount': f"{float(b.amount):.2f}",
+                'created_at': b.created_at.isoformat()
+            })
+            
+        return Response(data, status=status.HTTP_200_OK)

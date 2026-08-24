@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { getOrganiserRevenue, getShows, getVenuesApi, getSeatCategoriesApi, createEventApi, createShowApi } from '../api';
+import { getOrganiserRevenue, getShows, getVenuesApi, getSeatCategoriesApi, createEventApi, createShowApi, getOrganiserBookings } from '../api';
 import type { OrganiserRevenueSummary, ShowItem } from '../types';
-import { LayoutDashboard, IndianRupee, Users, PieChart as PieChartIcon, TrendingUp, RefreshCw, PlusCircle, Save } from 'lucide-react';
+import { LayoutDashboard, IndianRupee, Users, PieChart as PieChartIcon, TrendingUp, RefreshCw, PlusCircle, Save, List } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 export const OrganiserPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'create'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'create' | 'bookings'>('analytics');
   
   // Analytics State
   const [shows, setShows] = useState<ShowItem[]>([]);
   const [selectedShowId, setSelectedShowId] = useState<string>('all');
   const [summary, setSummary] = useState<OrganiserRevenueSummary | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [liveBookings, setLiveBookings] = useState<any[]>([]);
 
   // Create Flow State
   const [venues, setVenues] = useState<any[]>([]);
@@ -69,9 +70,20 @@ export const OrganiserPage: React.FC = () => {
     }
   };
 
+  const fetchLiveBookings = async () => {
+    try {
+      const data = await getOrganiserBookings();
+      setLiveBookings(data);
+    } catch (err) {
+      console.error('Failed to load live bookings:', err);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'analytics') {
       fetchRevenueData(selectedShowId);
+    } else if (activeTab === 'bookings') {
+      fetchLiveBookings();
     }
   }, [selectedShowId, activeTab]);
 
@@ -147,6 +159,16 @@ export const OrganiserPage: React.FC = () => {
             }`}
           >
             Revenue Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('bookings')}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+              activeTab === 'bookings'
+                ? 'bg-[#d84e55] text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <List className="w-3.5 h-3.5" /> Live Bookings
           </button>
           <button
             onClick={() => setActiveTab('create')}
@@ -299,6 +321,70 @@ export const OrganiserPage: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'bookings' && (
+        <div className="space-y-6 animate-fadeIn">
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => fetchLiveBookings()}
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-[#1c1d2b] px-3.5 py-2 rounded-xl border border-[#2e3046] transition-all cursor-pointer font-bold"
+            >
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </button>
+          </div>
+
+          <div className="cinestream-card rounded-3xl border border-[#262626] bg-[#171717] overflow-hidden">
+            <div className="p-5 border-b border-[#262626] flex items-center justify-between bg-black/40">
+              <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
+                <List className="w-4 h-4 text-[#d84e55]" /> Live Bookings Database
+              </h2>
+              <span className="text-xs font-bold text-zinc-400 bg-[#262626] px-3 py-1 rounded-full">
+                {liveBookings.length} Total Bookings
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-[#1c1d2b] text-zinc-400 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3 font-bold rounded-tl-lg">Reference</th>
+                    <th className="px-4 py-3 font-bold">Status</th>
+                    <th className="px-4 py-3 font-bold">Customer</th>
+                    <th className="px-4 py-3 font-bold">Contact</th>
+                    <th className="px-4 py-3 font-bold">Movie & Time</th>
+                    <th className="px-4 py-3 font-bold">Seat</th>
+                    <th className="px-4 py-3 font-bold rounded-tr-lg">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {liveBookings.map((b) => (
+                    <tr key={b.id} className="border-b border-[#262626]/50 hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 font-mono text-cyan-400 font-bold">{b.booking_reference}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${b.status === 'confirmed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                          {b.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-white font-bold">{b.customer_name}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs">{b.customer_email}</td>
+                      <td className="px-4 py-3">
+                        <div className="text-white font-bold">{b.movie}</div>
+                        <div className="text-[10px] text-zinc-500">{b.show_date} • {b.show_time}</div>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-white">{b.seat}</td>
+                      <td className="px-4 py-3 text-zinc-300">₹{b.amount}</td>
+                    </tr>
+                  ))}
+                  {liveBookings.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">No live bookings found for your events yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 

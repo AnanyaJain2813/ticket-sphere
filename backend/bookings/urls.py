@@ -1,7 +1,8 @@
 from django.urls import path
 from bookings.views import (
     SeatHoldView, ConfirmBookingView, CancelBookingView,
-    ResendBookingEmailView, UserBookingHistoryView, OrganiserRevenueSummaryView
+    ResendBookingEmailView, UserBookingHistoryView, OrganiserRevenueSummaryView,
+    OrganiserBookingsListView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('bookings/<uuid:booking_id>/resend-email/', ResendBookingEmailView.as_view(), name='resend-booking-email'),
     path('bookings/history/', UserBookingHistoryView.as_view(), name='booking-history'),
     path('organiser/revenue/', OrganiserRevenueSummaryView.as_view(), name='organiser-revenue'),
+    path('organiser/bookings/', OrganiserBookingsListView.as_view(), name='organiser-bookings'),
 ]

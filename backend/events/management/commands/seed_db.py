@@ -12,8 +12,19 @@ class Command(BaseCommand):
     help = 'Seeds default venues, categories, seats, events, and shows for presentation/judging.'
 
     def handle(self, *args, **options):
-        if Event.objects.exists():
-            self.stdout.write(self.style.SUCCESS("Database is already seeded. Skipping..."))
+        organizer_user, _ = User.objects.get_or_create(
+            username='organizer',
+            defaults={'email': 'organizer@gmail.com', 'role': 'organiser'}
+        )
+        if not organizer_user.check_password('12345678'):
+            organizer_user.set_password('12345678')
+            organizer_user.save()
+        
+        # Ensure organizer owns all events
+        Event.objects.all().update(created_by=organizer_user)
+
+        if Event.objects.filter(title='Interstellar (IMAX 70mm Special)').exists():
+            self.stdout.write(self.style.SUCCESS("Database is already seeded. Skipping rest..."))
             return
             
         self.stdout.write(self.style.SUCCESS("Starting database seeding..."))
@@ -27,13 +38,13 @@ class Command(BaseCommand):
             admin_user.set_password('admin1234')
             admin_user.save()
 
-        organiser_user, _ = User.objects.get_or_create(
-            username='organiser',
-            defaults={'email': 'organiser@redseats.in', 'role': 'organiser'}
+        organizer_user, _ = User.objects.get_or_create(
+            username='organizer',
+            defaults={'email': 'organizer@gmail.com', 'role': 'organiser'}
         )
-        if not organiser_user.check_password('organiser1234'):
-            organiser_user.set_password('organiser1234')
-            organiser_user.save()
+        if not organizer_user.check_password('12345678'):
+            organizer_user.set_password('12345678')
+            organizer_user.save()
 
         customer_user, _ = User.objects.get_or_create(
             username='customer',
@@ -102,7 +113,7 @@ class Command(BaseCommand):
                 'event_type': 'movie',
                 'description': 'Mankind was born on Earth. It was never meant to die here. Experience Christopher Nolan’s masterpiece in 70mm IMAX.',
                 'banner_url': '/interstellar_wallpaper.jpg',
-                'created_by': organiser_user
+                'created_by': organizer_user
             }
         )
         if e1.banner_url != '/interstellar_wallpaper.jpg':
@@ -115,7 +126,7 @@ class Command(BaseCommand):
                 'event_type': 'movie',
                 'description': 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
                 'banner_url': '/dune_wallpaper.png',
-                'created_by': organiser_user
+                'created_by': organizer_user
             }
         )
         if e2.banner_url != '/dune_wallpaper.png':
@@ -128,7 +139,7 @@ class Command(BaseCommand):
                 'event_type': 'concert',
                 'description': 'Live in concert featuring iconic hits, laser light shows, and sustainable stadium stage design.',
                 'banner_url': 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80',
-                'created_by': organiser_user
+                'created_by': organizer_user
             }
         )
         if e3.banner_url != 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80':
