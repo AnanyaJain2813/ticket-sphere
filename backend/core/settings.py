@@ -15,6 +15,7 @@ env = environ.Env(
     CORS_ALLOWED_ORIGINS=(str, 'http://localhost:5173'),
     HOLD_TTL_MINUTES=(int, 10),
     BREVO_API_KEY=(str, ""),
+    EMAIL_HOST=(str, 'smtp.gmail.com'),
     EMAIL_PORT=(int, 587),
     EMAIL_USE_TLS=(bool, True),
     EMAIL_HOST_USER=(str, ''),
