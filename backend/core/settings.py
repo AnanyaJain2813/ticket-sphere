@@ -35,10 +35,11 @@ ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 _railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN') or os.environ.get('RAILWAY_STATIC_URL')
 if _railway_host and _railway_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_railway_host)
-# Always allow all *.railway.app and *.vercel.app subdomains in production
+# Always allow Railway, Vercel and Render domains
 ALLOWED_HOSTS += [
     '.railway.app',
     '.vercel.app',
+    '.onrender.com',
     'web-production-6ecbf.up.railway.app',
     'ticket-sphere-sand.vercel.app',
 ]
@@ -171,6 +172,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
