@@ -188,7 +188,7 @@ REST_FRAMEWORK = {
 # ─────────────────────────────────────────
 # CORS
 # ─────────────────────────────────────────
-FRONTEND_URLS = [url.strip() for url in env('CORS_ALLOWED_ORIGINS').split(',')]
+FRONTEND_URLS = [url.strip().rstrip('/') for url in env('CORS_ALLOWED_ORIGINS').split(',')]
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = FRONTEND_URLS + [
