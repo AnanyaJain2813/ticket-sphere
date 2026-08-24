@@ -29,9 +29,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [errorToast, setErrorToast] = useState<{ message: string; x: number; y: number } | null>(null);
   const [showRecruiterModal, setShowRecruiterModal] = useState<boolean>(false);
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        setLoading(true);
         const data = await getShows();
         setShows(data);
         if (data.length > 0) {
@@ -40,6 +43,8 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       } catch (err) {
         console.error('Failed to load shows:', err);
         setErrorBanner('Failed to load shows from backend API.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchShows();
@@ -329,15 +334,22 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       )}
 
       {/* Step 1 Search Wizard: Movie & Showtime Selection */}
-      <SearchWizard
-        shows={shows}
-        selectedShowId={selectedShowId}
-        onSelectShow={setSelectedShowId}
-        onMovieSelect={onMovieSelect}
-      />
+      {loading ? (
+        <div className="py-20 flex flex-col items-center justify-center text-cyan-500 animate-fadeIn space-y-4">
+           <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+           <p className="text-zinc-400 font-bold text-sm">Waking up backend server on Render (may take 50s)...</p>
+        </div>
+      ) : (
+        <SearchWizard
+          shows={shows}
+          selectedShowId={selectedShowId}
+          onSelectShow={setSelectedShowId}
+          onMovieSelect={onMovieSelect}
+        />
+      )}
 
       {/* Step 2 Seat Map View */}
-      {selectedShow && (
+      {!loading && selectedShow && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
