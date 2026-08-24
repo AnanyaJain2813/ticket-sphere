@@ -11,7 +11,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 
 **Demo Login Credentials:**
 - **Customer**: `customer` / `customer1234`
-- **Organiser**: `organiser` / `organiser1234`
+- **Organiser**: `organizer` / `12345678`
 - **Admin**: `admin` / `admin1234`
 
 ---
@@ -76,7 +76,7 @@ The absolute easiest way to test this project locally is to use the included `st
 # Make the script executable
 chmod +x start.sh
 
-# Run the complete stack (Django + React + Celery)
+# Run the complete stack (Django + React)
 ./start.sh
 ```
 
@@ -129,7 +129,7 @@ By default, the backend simulates email delivery by printing to the terminal con
 ## 🔑 Default Demo Credentials
 
 - **Admin Account**: `admin` / `admin1234`
-- **Organiser Account**: `organiser` / `organiser1234`
+- **Organiser Account**: `organizer` / `12345678`
 - **Customer Account**: `customer` / `customer1234`
 
 ---
