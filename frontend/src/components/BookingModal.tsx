@@ -247,9 +247,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
             {/* QR Code M-Ticket Pass */}
             <div className="bg-[#171717] p-5 rounded-3xl inline-block shadow-2xl mx-auto border border-cyan-500/40 text-center space-y-3">
-              {bookingSuccess.qr_code_url ? (
+              {(bookingSuccess.qr_code_base64 || bookingSuccess.qr_code_url) ? (
                 <img
-                  src={bookingSuccess.qr_code_url}
+                  src={bookingSuccess.qr_code_base64 ? `data:image/png;base64,${bookingSuccess.qr_code_base64}` : bookingSuccess.qr_code_url}
                   alt="QR Ticket"
                   className="w-44 h-44 mx-auto rounded-xl p-2 bg-white"
                 />

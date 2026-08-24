@@ -125,7 +125,17 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
         'show_seat', 'show_seat__seat', 'show_seat__category'
     ).get(id=booking_id)
 
-    qr_bytes = generate_qr_code_bytes(booking.booking_reference)
+    seat_names = [f"{s.seat.row_name}{s.seat.col_number}" for s in [booking.show_seat]]
+    qr_text = (
+        f"CineStream M-Ticket\n"
+        f"Booking: {booking.booking_reference}\n"
+        f"Movie: {booking.show.event.title}\n"
+        f"Date: {booking.show.start_time.strftime('%b %d, %Y %I:%M %p')}\n"
+        f"Seats: {', '.join(seat_names)}\n"
+        f"Total: ₹{booking.amount}"
+    )
+    qr_bytes = generate_qr_code_bytes(qr_text)
+    
     email_target = recipient_email or booking.user.email or f"{booking.user.username}@gmail.com"
     name_target = recipient_name or booking.user.username
 
