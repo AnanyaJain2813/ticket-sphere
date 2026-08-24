@@ -70,17 +70,6 @@ def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in
     """
     Sends an email notifying a user that a waitlist seat is now available for them.
     """
-    import sib_api_v3_sdk
-    
-    if not getattr(settings, 'BREVO_API_KEY', None):
-        logger.warning("BREVO_API_KEY not configured. Skipping waitlist email dispatch.")
-        return
-
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = settings.BREVO_API_KEY
-
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-    
     html_content = f"""
     <html>
         <body>
@@ -94,6 +83,26 @@ def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in
         </body>
     </html>
     """
+
+    if not getattr(settings, 'BREVO_API_KEY', None):
+        logger.warning("BREVO_API_KEY not configured. Falling back to Django SMTP for waitlist email.")
+        from django.core.mail import send_mail
+        from django.utils.html import strip_tags
+        send_mail(
+            subject="Great News! A Seat Freed Up!",
+            message=strip_tags(html_content),
+            html_message=html_content,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in'),
+            recipient_list=[user_email],
+            fail_silently=False,
+        )
+        return
+
+    import sib_api_v3_sdk
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.BREVO_API_KEY
+
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": user_email}],
