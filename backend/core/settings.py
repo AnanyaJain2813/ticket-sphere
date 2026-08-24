@@ -72,15 +72,19 @@ AUTH_USER_MODEL = 'accounts.User'
 
 ASGI_APPLICATION = 'core.asgi.application'
 
+REDIS_URL = (
+    os.environ.get('REDIS_URL')
+    or os.environ.get('REDISURL')
+    or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+)
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [{
-                'address': os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0'),
-                'health_check_interval': 25,
-                'socket_keepalive': True,
-            }],
+            'hosts': [REDIS_URL],
+            'capacity': 1500,
+            'expiry': 10,
         },
     },
 }
@@ -235,11 +239,11 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 # Celery & Redis
-REDIS_URL_VAL = os.environ.get('REDIS_URL') or os.environ.get('REDISURL') or env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
-CELERY_BROKER_URL = REDIS_URL_VAL
-CELERY_RESULT_BACKEND = 'disabled://'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = None
+CELERY_TASK_IGNORE_RESULT = True
 CELERY_IGNORE_RESULT = True
-CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
@@ -249,13 +253,13 @@ HOLD_TTL_MINUTES = int(env('HOLD_TTL_MINUTES', default=10))
 
 # Celery Beat Schedule
 CELERY_BEAT_SCHEDULE = {
-    'release-expired-holds-every-30-seconds': {
+    'release-expired-holds-every-minute': {
         'task': 'bookings.tasks.release_expired_holds',
-        'schedule': 30.0,
+        'schedule': 60.0,
     },
-    'expire-waitlist-offers-every-30-seconds': {
+    'expire-waitlist-offers-every-minute': {
         'task': 'waitlist.tasks.expire_waitlist_offers',
-        'schedule': 30.0,
+        'schedule': 60.0,
     },
 }
 
