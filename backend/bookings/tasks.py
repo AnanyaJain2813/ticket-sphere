@@ -89,6 +89,35 @@ def generate_qr_code_bytes(data: str) -> bytes:
     return buffer.getvalue()
 
 
+import threading
+
+def _send_brevo_email(email_target, subject, body, qr_bytes, booking_reference):
+    try:
+        if not getattr(settings, 'BREVO_API_KEY', None):
+            logger.warning("BREVO_API_KEY not configured. Skipping booking email.")
+            return False
+
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+        qr_base64 = base64.b64encode(qr_bytes).decode('utf-8')
+        
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{"email": email_target}],
+            bcc=[{"email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'jainananya2800@gmail.com')}],
+            sender={"name": "CineStream System", "email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in')},
+            subject=subject,
+            text_content=body,
+            attachment=[{"content": qr_base64, "name": f"M_Ticket_{booking_reference}.png"}]
+        )
+
+        api_instance.send_transac_email(send_smtp_email)
+        logger.info(f"Confirmation email sent to {email_target} for booking {booking_reference} via Brevo")
+    except Exception as e:
+        logger.exception(f"Email delivery failed for booking {booking_reference}: {e}")
+
+
 def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=None, recipient_phone=None):
     """Send a booking confirmation email with the QR code attached using Django's built-in email."""
     booking = Booking.objects.select_related(
@@ -115,34 +144,6 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
         f"Team CineStream"
     )
 
-    try:
-        if not getattr(settings, 'BREVO_API_KEY', None):
-            logger.warning("BREVO_API_KEY not configured. Skipping booking email.")
-            return False
-
-        configuration = sib_api_v3_sdk.Configuration()
-        configuration.api_key['api-key'] = settings.BREVO_API_KEY
-        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-        qr_base64 = base64.b64encode(qr_bytes).decode('utf-8')
-        
-        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-            to=[{"email": email_target}],
-            bcc=[{"email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'jainananya2800@gmail.com')}],
-            sender={"name": "CineStream System", "email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in')},
-            subject=subject,
-            text_content=body,
-            attachment=[{"content": qr_base64, "name": f"M_Ticket_{booking.booking_reference}.png"}]
-        )
-
-        api_instance.send_transac_email(send_smtp_email)
-        logger.info(f"Confirmation email sent to {email_target} for booking {booking.booking_reference} via Brevo")
-
-        if booking.email_delivery_failed:
-            booking.email_delivery_failed = False
-            booking.save(update_fields=['email_delivery_failed'])
-        return True
-    except Exception as e:
-        logger.exception(f"Email delivery failed for booking {booking_id}: {e}")
-        Booking.objects.filter(id=booking_id).update(email_delivery_failed=True)
-        raise
+    # Dispatch to background thread to prevent blocking the HTTP response
+    threading.Thread(target=_send_brevo_email, args=(email_target, subject, body, qr_bytes, booking.booking_reference)).start()
+    return True
