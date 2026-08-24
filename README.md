@@ -16,6 +16,19 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 
 ---
 
+## 📸 Screenshots & UI Preview
+
+### 1. Interactive Seating Map & Real-Time Seat Selection
+![Interactive Seating Map](screenshots/seat_selection.png)
+
+### 2. Event Listing, Cinema & Showtime Selection
+![Homepage UI](screenshots/homepage.png)
+
+### 3. Secure Login & One-Click Demo Accounts
+![Login UI](screenshots/login.png)
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology | Purpose |
