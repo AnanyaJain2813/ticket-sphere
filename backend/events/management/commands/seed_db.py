@@ -176,12 +176,12 @@ class Command(BaseCommand):
             return show
 
         # 2 shows for e1 (Interstellar)
-        create_show_and_seats(e1, venue_5, now + datetime.timedelta(hours=2), now + datetime.timedelta(hours=5))
-        create_show_and_seats(e1, venue_50, now + datetime.timedelta(days=1, hours=3), now + datetime.timedelta(days=1, hours=6))
+        create_show_and_seats(e1, venue_50, now + datetime.timedelta(hours=2), now + datetime.timedelta(hours=5))
+        create_show_and_seats(e1, venue_5, now + datetime.timedelta(days=1, hours=3), now + datetime.timedelta(days=1, hours=6))
 
         # 2 shows for e2 (Dune)
-        create_show_and_seats(e2, venue_5, now + datetime.timedelta(hours=4), now + datetime.timedelta(hours=7))
-        create_show_and_seats(e2, venue_50, now + datetime.timedelta(days=1, hours=6), now + datetime.timedelta(days=1, hours=9))
+        create_show_and_seats(e2, venue_50, now + datetime.timedelta(hours=4), now + datetime.timedelta(hours=7))
+        create_show_and_seats(e2, venue_5, now + datetime.timedelta(days=1, hours=6), now + datetime.timedelta(days=1, hours=9))
 
         # 1 show for e3 (Coldplay)
         create_show_and_seats(e3, venue_20, now + datetime.timedelta(days=2, hours=8), now + datetime.timedelta(days=2, hours=11))
