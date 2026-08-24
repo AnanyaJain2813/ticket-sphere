@@ -28,10 +28,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<{ message: string; x: number; y: number } | null>(null);
   const [showRecruiterModal, setShowRecruiterModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        setLoading(true);
         const data = await getShows();
         setShows(data);
         if (data.length > 0) {
@@ -40,6 +42,8 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       } catch (err) {
         console.error('Failed to load shows:', err);
         setErrorBanner('Failed to load shows from backend API.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchShows();
@@ -329,15 +333,21 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       )}
 
       {/* Step 1 Search Wizard: Movie & Showtime Selection */}
-      <SearchWizard
-        shows={shows}
-        selectedShowId={selectedShowId}
-        onSelectShow={setSelectedShowId}
-        onMovieSelect={onMovieSelect}
-      />
+      {loading ? (
+        <div className="py-20 flex items-center justify-center text-cyan-500 animate-fadeIn">
+           <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : shows.length > 0 ? (
+        <SearchWizard
+          shows={shows}
+          selectedShowId={selectedShowId}
+          onSelectShow={setSelectedShowId}
+          onMovieSelect={onMovieSelect}
+        />
+      ) : null}
 
       {/* Step 2 Seat Map View */}
-      {selectedShow && (
+      {!loading && selectedShow && shows.length > 0 && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -381,10 +391,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       )}
 
       {/* Step 3 Queue & Waitlist Section */}
-      <WaitlistSection
-        showId={selectedShowId}
-        seats={seats}
-      />
+      {!loading && shows.length > 0 && selectedShowId && (
+        <WaitlistSection
+          showId={selectedShowId}
+          seats={seats}
+        />
+      )}
 
       {/* Booking Checkout Modal */}
       {showCheckoutModal && selectedShow && (
