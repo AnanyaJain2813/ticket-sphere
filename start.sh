@@ -11,11 +11,11 @@ pip install -r requirements.txt --quiet
 echo "🗄️ Running Database Migrations (SQLite)..."
 python manage.py migrate
 
-echo "🌱 Seeding Database (Optional)..."
-# python manage.py seed_db
+echo "🌱 Seeding Database..."
+python manage.py seed_db
 
-echo "🎬 Starting Django Backend Server on port 8000..."
-python manage.py runserver 8000 &
+echo "🎬 Starting Django Backend Server on port 8005..."
+python manage.py runserver 8005 &
 BACKEND_PID=$!
 
 echo "⚙️ Starting Celery Worker..."
@@ -31,10 +31,11 @@ cd ..
 # 2. Setup Frontend
 echo "💻 Setting up Frontend (Vite + React)..."
 cd frontend
+echo "VITE_API_BASE_URL=http://localhost:8005/api" > .env
 npm install --silent
 
-echo "✨ Starting Frontend Server..."
-npm run dev &
+echo "✨ Starting Frontend Server on port 5175..."
+npm run dev -- --port 5175 &
 FRONTEND_PID=$!
 
 echo "✅ All services started! TicketSphere is running."

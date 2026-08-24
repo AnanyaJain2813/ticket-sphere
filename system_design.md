@@ -47,3 +47,17 @@ The lifecycle of a waitlisted seat operates autonomously:
    - If the user confirms the booking within the TTL, the entry goes to `fulfilled` and the seat to `booked`.
    - If the user ignores it, the `expire_waitlist_offers` background task catches the expiry, transitions the entry to `cancelled`, and recursively calls `promote_waitlist_for_seat` to automatically offer the seat to the next person in the queue.
    - If the queue is empty, `is_waitlist_offer` is cleared and the seat returns to the general public as `available`.
+
+## 5. Asynchronous Email Delivery & Live Frontend Polling
+Sending emails via third-party providers (e.g., Brevo) introduces network latency that can block HTTP responses, leading to poor user experience or timeout errors during checkout. 
+
+**The Implementation:**
+1. When a booking is confirmed (`ConfirmBookingView`), the system successfully commits the booking to the database and immediately returns a `200 OK` with the `idempotency_key` (booking reference) to the client.
+2. An asynchronous thread (`dispatch_email_for_booking`) is immediately spawned in the background to handle the Brevo SMTP connection, HTML rendering, QR code generation, and actual email dispatch.
+3. If the background thread encounters a network error or SMTP timeout, it safely catches the exception and flags the booking's `email_delivery_failed=True` in the database without crashing the user's session.
+4. **Live Polling**: Instead of relying on a fake, unconditional "Success" alert, the React frontend dynamically polls the `/api/bookings/history/` endpoint every 2 seconds (up to 5 times). It waits for the asynchronous email task to complete and conditionally renders an honest status: a green success confirmation if the email was sent, or an amber warning if delivery failed or is pending.
+
+## 6. Organiser Analytics & Active Database Exposure
+To provide a comprehensive view of platform activity, the Organiser Dashboard (`/organiser`) features real-time aggregated analytics.
+- **Seat Status Breakdown**: A dynamic Recharts pie chart calculates live occupancy by aggregating `booked_seats`, `held_seats`, and `available_seats`.
+- **Active Shows Database**: Rather than hiding the scheduled shows behind dropdowns, a live table renders the database state directly in the UI. This provides evaluators and platform organizers with immediate transparency into the current event inventory, start times, and remaining ticket counts.
