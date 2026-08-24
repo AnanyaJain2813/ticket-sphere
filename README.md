@@ -6,7 +6,7 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 
 ## 🔗 Live Deployment
 
-- **Frontend**: https://ticket-sphere-sand.vercel.app/
+- **Frontend**: https://ticket-sphere-two.vercel.app/
 - **Backend API**: https://web-production-6ecbf.up.railway.app/api/
 
 **Demo Login Credentials:**
