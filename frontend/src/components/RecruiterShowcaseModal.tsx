@@ -91,8 +91,6 @@ export const RecruiterShowcaseModal: React.FC<RecruiterShowcaseModalProps> = ({ 
                 In-memory PNG QR code generation attached to confirmation emails using standard Django SMTP with robust fallback flags.
               </p>
             </div>
-          </div>
-
           {/* Footer Callout */}
           <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-2xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5 text-xs text-white">
