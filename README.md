@@ -4,6 +4,18 @@ A production-ready, full-stack event & movie ticket booking platform built with 
 
 ---
 
+## 🔗 Live Deployment
+
+- **Frontend**: https://ticket-sphere-sand.vercel.app/
+- **Backend API**: https://web-production-6ecbf.up.railway.app/api/
+
+**Demo Login Credentials:**
+- **Customer**: `customer` / `customer1234`
+- **Organiser**: `organiser` / `organiser1234`
+- **Admin**: `admin` / `admin1234`
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology | Purpose |
@@ -77,6 +89,10 @@ python manage.py runserver 8000
 ### 2. Frontend Setup (React / Vite)
 ```bash
 cd frontend
+
+# Set up environment variables (Required for API connection)
+# Create a .env file in the frontend folder with the following:
+# VITE_API_BASE_URL=http://localhost:8000/api
 
 # Install React frontend dependencies
 npm install
