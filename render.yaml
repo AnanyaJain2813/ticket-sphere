@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: python manage.py migrate --noinput && python manage.py seed_db && ASGI_THREADS=4 python -m gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --workers 1 --bind 0.0.0.0:$PORT
+    startCommand: (sleep 45 && python manage.py migrate --noinput && python manage.py seed_db) & ASGI_THREADS=4 python -m gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --workers 1 --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: DEBUG
