@@ -428,18 +428,13 @@ def confirm_booking(show_seat_id, user, idempotency_key, customer_name=None, cus
                     status='confirmed'
                 )
                 
-                # Trigger confirmation email & SMS task asynchronously without blocking HTTP response
-                import threading
+                # Trigger confirmation email & SMS task synchronously
                 from bookings.tasks import dispatch_email_for_booking
-                def _safe_dispatch_email(b_id, email, name, phone):
-                    threading.Thread(
-                        target=dispatch_email_for_booking,
-                        args=(b_id, email, name, phone),
-                        daemon=True
-                    ).start()
-
                 def _on_commit_actions():
-                    _safe_dispatch_email(str(booking.id), customer_email, customer_name, customer_phone)
+                    try:
+                        dispatch_email_for_booking(booking.id, customer_email, customer_name, customer_phone)
+                    except Exception as e:
+                        print(f"Failed to send email synchronously: {e}")
                     broadcast_seat_updates(seat.show_id, [{
                         'id': str(seat.id),
                         'status': 'booked',
@@ -569,14 +564,9 @@ def retrigger_booking_email(booking_id, user):
         if booking.status != 'confirmed':
             return {'success': False, 'reason': 'not_confirmed', 'message': 'Booking is not confirmed.'}
         
-        import threading
         from bookings.tasks import dispatch_email_for_booking
-        threading.Thread(
-            target=dispatch_email_for_booking,
-            args=(str(booking.id),),
-            daemon=True
-        ).start()
-        return {'success': True, 'reason': 'email_queued', 'message': 'Confirmation email resend queued.'}
+        dispatch_email_for_booking(booking.id)
+        return {'success': True, 'reason': 'email_sent', 'message': 'Confirmation email resent.'}
     except Booking.DoesNotExist:
         return {'success': False, 'reason': 'booking_not_found', 'message': 'Booking not found.'}
 
