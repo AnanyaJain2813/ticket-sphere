@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { ShowItem, ActiveHold } from '../types';
 import { HoldCountdownRing } from './HoldCountdownRing';
-import { CreditCard, QrCode, CheckCircle2, AlertCircle, X, ShieldCheck, Ticket, MapPin, User, Phone, Mail, Film, Calendar } from 'lucide-react';
+import { CreditCard, QrCode, CheckCircle2, AlertCircle, X, ShieldCheck, Ticket, MapPin, User, Mail, Film, Calendar, Clock } from 'lucide-react';
+import { api } from '../api/client';
 
 interface BookingModalProps {
   activeHolds: ActiveHold[];
@@ -22,6 +23,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState<any | null>(null);
+  const [emailStatus, setEmailStatus] = useState<'pending' | 'success' | 'failed'>('pending');
 
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
@@ -46,9 +48,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       });
       if (res && (res.success || res.booking)) {
         setBookingSuccess(res.booking || { booking_reference: idempotencyKey, qr_code_url: '' });
-        setTimeout(() => {
-          alert(`📱 SMS Alert & Gmail M-Ticket Dispatched!\n\nSent to Mobile: ${passengerPhone}\nSent to Gmail: ${passengerEmail}\n\nReference ID: ${res.booking?.booking_reference || idempotencyKey}\nAttached PNG QR M-Ticket ready for gate entry!`);
-        }, 300);
       } else {
         setErrorMsg(res?.message || 'Booking confirmation could not be completed.');
       }
@@ -63,6 +62,43 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  React.useEffect(() => {
+    if (!bookingSuccess) return;
+    
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    const checkEmailStatus = async () => {
+      try {
+        const { data } = await api.get('/bookings/history/');
+        const booking = data.find((b: any) => b.booking_reference === bookingSuccess.booking_reference);
+        
+        if (booking) {
+          if (booking.email_delivery_failed === true) {
+            setEmailStatus('failed');
+            return;
+          } else if (booking.email_delivery_failed === false && attempts > 1) {
+            // Assume success if it hasn't failed after a few seconds (as async task completes)
+            setEmailStatus('success');
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to poll booking history', err);
+      }
+
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(checkEmailStatus, 2000);
+      } else {
+        // Fallback to failed/pending state if we can't confirm success
+        setEmailStatus('failed');
+      }
+    };
+    
+    setTimeout(checkEmailStatus, 2000);
+  }, [bookingSuccess]);
 
   const startTimeStr = show?.start_time
     ? new Date(show.start_time).toLocaleString('en-US', {
@@ -198,7 +234,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             {/* Idempotency Protection Indicator */}
             <div className="flex items-center gap-2 text-[11px] text-emerald-400 bg-emerald-950/20 p-2.5 rounded-xl border border-emerald-500/20 font-medium">
               <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-              <span>SMS & Gmail M-Ticket Delivery Engine Active</span>
+              <span>Idempotent Checkout & Email Delivery Engine Active</span>
             </div>
 
             {/* Error Message */}
@@ -218,7 +254,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  Sending QR Ticket & SMS...
+                  Processing Booking...
                 </>
               ) : (
                 <>
@@ -265,15 +301,27 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             </div>
 
             {/* Delivery Confirmation Box */}
-            <div className="bg-[#171717] p-4 rounded-2xl border border-[#262626] text-left space-y-2 text-xs text-zinc-300">
-              <div className="flex items-center gap-2 text-cyan-400 font-bold">
-                <Mail className="w-4 h-4 text-cyan-400" /> Sent to Gmail: <span className="text-white font-mono">{passengerEmail}</span>
-              </div>
-              <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                <Phone className="w-4 h-4 text-emerald-400" /> Text SMS Alert Sent: <span className="text-white font-mono">{passengerPhone}</span>
-              </div>
-              <p className="text-zinc-400 text-[11px] pt-1 border-t border-[#262626]">
-                Attached PNG QR M-Ticket sent for passenger <span className="font-bold text-white">{passengerName}</span>. Show at gate entry.
+            <div className="bg-[#171717] p-4 rounded-2xl border border-[#262626] text-left space-y-3 text-xs text-zinc-300">
+              {emailStatus === 'pending' && (
+                <div className="flex items-center gap-2 text-zinc-400 font-bold">
+                  <Clock className="w-4 h-4 animate-pulse" /> Email Delivery: <span className="text-white">Dispatching...</span>
+                </div>
+              )}
+              {emailStatus === 'success' && (
+                <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                  <Mail className="w-4 h-4" /> Email Delivery: <span className="text-white font-mono">{passengerEmail}</span>
+                  <CheckCircle2 className="w-4 h-4 ml-auto text-emerald-400" />
+                </div>
+              )}
+              {emailStatus === 'failed' && (
+                <div className="flex items-center gap-2 text-amber-400 font-bold">
+                  <AlertCircle className="w-4 h-4" /> Email Delivery: <span className="text-white">Pending / Failed</span>
+                </div>
+              )}
+              <p className="text-zinc-400 text-[11px] pt-2 border-t border-[#262626]">
+                {emailStatus === 'success' 
+                  ? `Confirmation email sent. Attached PNG QR M-Ticket sent for passenger ${passengerName}. Show at gate entry.`
+                  : `Booking confirmed — email delivery is pending/failed, check your booking history.`}
               </p>
             </div>
 

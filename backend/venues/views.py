@@ -26,7 +26,8 @@ class VenueListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsAdmin]
+    from rest_framework.permissions import IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         venues = Venue.objects.all().order_by('name')
@@ -43,6 +44,9 @@ class VenueListView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        if getattr(request.user, "role", None) != "admin":
+            return Response({'detail': 'Access restricted to administrators.'}, status=status.HTTP_403_FORBIDDEN)
+            
         name = request.data.get('name')
         location = request.data.get('location')
         total_capacity = request.data.get('total_capacity')
@@ -225,9 +229,11 @@ class SeatCategoryListView(APIView):
     Restricted to IsAdmin.
     """
 
-    permission_classes = [IsAdmin]
+    from rest_framework.permissions import IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        categories = SeatCategory.objects.all()
         data = [
             {
                 'id': str(c.id),
@@ -240,6 +246,9 @@ class SeatCategoryListView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        if getattr(request.user, "role", None) != "admin":
+            return Response({'detail': 'Access restricted to administrators.'}, status=status.HTTP_403_FORBIDDEN)
+
         name = request.data.get('name')
         base_price = request.data.get('base_price')
 

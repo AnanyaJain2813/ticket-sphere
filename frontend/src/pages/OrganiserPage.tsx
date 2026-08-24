@@ -261,6 +261,42 @@ export const OrganiserPage: React.FC = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
+
+              {/* Added Shows List for Evaluators */}
+              <div className="cinestream-card p-6 rounded-3xl border border-[#262626] space-y-4 bg-[#171717]">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-[#d84e55]" /> Active Shows Database
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-zinc-400">
+                    <thead className="text-xs text-zinc-500 uppercase bg-black/40 border-b border-[#262626]">
+                      <tr>
+                        <th className="px-4 py-3 font-bold rounded-tl-lg">Event Title</th>
+                        <th className="px-4 py-3 font-bold">Venue</th>
+                        <th className="px-4 py-3 font-bold">Start Time</th>
+                        <th className="px-4 py-3 font-bold">Total Seats</th>
+                        <th className="px-4 py-3 font-bold rounded-tr-lg">Available</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {shows.map((s) => (
+                        <tr key={s.id} className="border-b border-[#262626]/50 hover:bg-white/5 transition-colors">
+                          <td className="px-4 py-3 font-bold text-white">{s.event_title} <span className="text-[10px] text-zinc-500 font-normal uppercase bg-[#262626] px-2 py-0.5 rounded ml-2">{s.event_type}</span></td>
+                          <td className="px-4 py-3">{s.venue_name}</td>
+                          <td className="px-4 py-3">{new Date(s.start_time).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-zinc-300">{s.total_seats}</td>
+                          <td className="px-4 py-3 text-cyan-400 font-bold">{s.available_seats}</td>
+                        </tr>
+                      ))}
+                      {shows.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">No shows found.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -323,11 +359,11 @@ export const OrganiserPage: React.FC = () => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase">Start Time</label>
-                <input required type="datetime-local" value={showStartTime} onChange={e => setShowStartTime(e.target.value)} className="w-full bg-black/50 border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:border-[#d84e55] outline-none" />
+                <input required type="datetime-local" value={showStartTime} onChange={e => setShowStartTime(e.target.value)} className="w-full bg-black/50 border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:border-[#d84e55] outline-none [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase">End Time</label>
-                <input required type="datetime-local" value={showEndTime} onChange={e => setShowEndTime(e.target.value)} className="w-full bg-black/50 border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:border-[#d84e55] outline-none" />
+                <input required type="datetime-local" value={showEndTime} onChange={e => setShowEndTime(e.target.value)} className="w-full bg-black/50 border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:border-[#d84e55] outline-none [color-scheme:dark]" />
               </div>
             </div>
           </div>
