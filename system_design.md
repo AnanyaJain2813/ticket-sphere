@@ -1,5 +1,6 @@
 # TicketSphere System Design: Seat Hold Concurrency & Waitlist Mechanics
 
+**Author: Ananya Jain**
 This document outlines the architecture and concurrency safety mechanisms built into the platform to handle high-demand ticket sales, waitlist queues, and seat allocations.
 
 ## 1. The Seat-Hold TTL Mechanism & `select_for_update()`
