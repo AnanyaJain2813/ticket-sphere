@@ -1,0 +1,182 @@
+services:
+  # 1. Django Web Service (Daphne ASGI)
+  - type: web
+    name: ticket-booking-backend
+    env: python
+    buildCommand: "echo 'Build complete'"
+    startCommand: "cd backend && python manage.py migrate --noinput && python manage.py seed_db && daphne -b 0.0.0.0 -p $PORT core.asgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9.18"
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: DB_ENGINE
+        value: postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: ticket-booking-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: ticket-booking-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ticket-booking-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: ticket-booking-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ticket-booking-db
+          property: port
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: port
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://your-ticketsphere-app.vercel.app
+
+  # 2. Celery Background Worker
+  - type: worker
+    name: celery-worker
+    env: python
+    buildCommand: "echo 'Build complete'"
+    startCommand: "cd backend && celery -A core worker -l INFO"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9.18"
+      - key: DB_ENGINE
+        value: postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: ticket-booking-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: ticket-booking-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ticket-booking-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: ticket-booking-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ticket-booking-db
+          property: port
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: port
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+
+  # 3. Celery Beat Scheduler
+  - type: worker
+    name: celery-beat
+    env: python
+    buildCommand: "echo 'Build complete'"
+    startCommand: "cd backend && celery -A core beat -l INFO"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9.18"
+      - key: DB_ENGINE
+        value: postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: ticket-booking-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: ticket-booking-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ticket-booking-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: ticket-booking-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ticket-booking-db
+          property: port
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: port
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: ticket-booking-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+
+  # 4. Managed Redis Instance
+  - type: redis
+    name: ticket-booking-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+
+# 5. PostgreSQL Database
+databases:
+  - name: ticket-booking-db
+    plan: free

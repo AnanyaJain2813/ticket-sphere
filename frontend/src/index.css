@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --cinestream-accent: #06b6d4; /* Cyan 500 for a neon cinematic look */
+    --cinestream-accent-light: #67e8f9;
+    --cinestream-accent-dark: #0891b2;
+    --cinestream-dark: #0a0a0a;
+    --cinestream-dark-surface: #171717;
+    --cinestream-bg: #000000;
+    --cinestream-text: #f8fafc;
+    --cinestream-text-muted: #94a3b8;
+  }
+
+  body {
+    background-color: var(--cinestream-bg);
+    color: var(--cinestream-text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* CineStream Cards & Styling */
+.cinestream-card {
+  background: var(--cinestream-dark-surface);
+  border: 1px solid #262626;
+  border-radius: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease-in-out;
+}
+
+.cinestream-card:hover {
+  box-shadow: 0 8px 40px rgba(6, 182, 212, 0.1);
+  border-color: #404040;
+}
+
+.cinestream-btn-primary {
+  background-color: var(--cinestream-accent);
+  color: #000000;
+  font-weight: 800;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+.cinestream-btn-primary:hover {
+  background-color: var(--cinestream-accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.6);
+}
+
+.cinestream-pill-active {
+  background-color: rgba(6, 182, 212, 0.1);
+  color: var(--cinestream-accent);
+  font-weight: 700;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.cinestream-pill-inactive {
+  background-color: transparent;
+  color: var(--cinestream-text-muted);
+  font-weight: 600;
+}
+
+.cinestream-pill-inactive:hover {
+  background-color: #262626;
+  color: var(--cinestream-text);
+}
+
+/* CineStream Seat Item Styling */
+.cinestream-seat {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px 10px 4px 4px; /* Makes it look slightly like a cinema chair */
+  border: 1.5px solid #404040;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  background-color: #171717;
+  color: #a3a3a3;
+}
+
+.cinestream-seat-available:hover {
+  background-color: var(--cinestream-accent);
+  color: #000000;
+  border-color: var(--cinestream-accent-light);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+  transform: scale(1.15) translateY(-2px);
+}
+
+.cinestream-seat-held {
+  background-color: var(--cinestream-accent);
+  color: #000000;
+  border-color: var(--cinestream-accent-light);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
+  transform: scale(1.1) translateY(-2px);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+  50% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.9); }
+  100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+}
+
+.cinestream-seat-booked {
+  background-color: #262626;
+  color: #525252;
+  border-color: #171717;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Cinema Screen */
+.cinema-screen {
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  border-top: 4px solid var(--cinestream-accent);
+  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+  box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.2);
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cinema-screen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.2), transparent);
+  animation: screen-flicker 4s infinite;
+}
+
+@keyframes screen-flicker {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  75% { opacity: 0.4; }
+}

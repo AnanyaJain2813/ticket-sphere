@@ -1,0 +1,110 @@
+from celery import shared_task
+from django.db import transaction
+from django.db.models.functions import Now
+from waitlist.models import WaitlistEntry
+from bookings.models import ShowSeat
+from waitlist.services import promote_waitlist_for_seat
+import logging
+
+logger = logging.getLogger(__name__)
+
+@shared_task
+def expire_waitlist_offers():
+    """
+    Periodically scans for expired 'offered' waitlist entries.
+    When an offer expires, the waitlist entry is marked as 'expired',
+    the seat hold is released, and the seat is immediately offered to 
+    the next person in the waitlist.
+    """
+    # 1. Find all expired offers
+    # We do not use bulk update here initially because we need to process
+    # each expired offer one by one to trigger the next waitlist promotion.
+    
+    expired_entries = WaitlistEntry.objects.filter(
+        status='offered',
+        offer_expires_at__lte=Now()
+    ).values_list('id', flat=True)
+    
+    processed_count = 0
+    
+    for entry_id in expired_entries:
+        try:
+            with transaction.atomic():
+                # Lock the specific waitlist entry
+                entry = WaitlistEntry.objects.select_for_update().get(
+                    id=entry_id, 
+                    status='offered',
+                    offer_expires_at__lte=Now()
+                )
+                
+                # Mark as expired
+                entry.status = 'expired'
+                entry.offer_expires_at = None
+                entry.save(update_fields=['status', 'offer_expires_at'])
+                
+                # Find the seat that was held for this user
+                seat = ShowSeat.objects.select_for_update().filter(
+                    show_id=entry.show_id,
+                    category_id=entry.category_id,
+                    status='held',
+                    holder_id=entry.user_id
+                ).first()
+                
+                if seat:
+                    # Promote the next person in line for this seat
+                    promote_waitlist_for_seat(seat)
+                    
+                processed_count += 1
+                logger.info(f"Expired waitlist offer {entry.id} for user {entry.user_id}")
+                
+        except WaitlistEntry.DoesNotExist:
+            # Another worker might have processed it already, safe to ignore
+            continue
+            
+    return processed_count
+
+from django.conf import settings
+
+@shared_task
+def dispatch_waitlist_offer_email(user_email, seat_label, show_title, expires_in_minutes):
+    """
+    Sends an email notifying a user that a waitlist seat is now available for them.
+    """
+    import sib_api_v3_sdk
+    
+    if not getattr(settings, 'BREVO_API_KEY', None):
+        logger.warning("BREVO_API_KEY not configured. Skipping waitlist email dispatch.")
+        return
+
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.BREVO_API_KEY
+
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    
+    html_content = f"""
+    <html>
+        <body>
+            <h1 style="color: #06b6d4;">Great News! A Seat Freed Up!</h1>
+            <p>You were on the waitlist for <strong>{show_title}</strong>.</p>
+            <p>We've successfully reserved seat <strong>{seat_label}</strong> for you!</p>
+            <p style="color: #ef4444; font-weight: bold;">
+                You have {expires_in_minutes} minutes to open the app and checkout before this offer expires and is passed to the next person.
+            </p>
+            <p>Open CineStream now to complete your booking!</p>
+        </body>
+    </html>
+    """
+
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": user_email}],
+        reply_to={"email": "noreply@cinestream.com", "name": "CineStream System"},
+        html_content=html_content,
+        sender={"name": "CineStream Tickets", "email": "tickets@cinestream.com"},
+        subject="Your CineStream Waitlist Offer is Ready!"
+    )
+
+    try:
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        logger.info(f"Waitlist offer email sent to {user_email}. Message ID: {api_response.message_id}")
+    except Exception as e:
+        logger.error(f"Failed to send waitlist email to {user_email}: {e}")
