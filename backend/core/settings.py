@@ -15,7 +15,7 @@ env = environ.Env(
     CORS_ALLOWED_ORIGINS=(str, 'https://ticket-sphere-dusky.vercel.app'),
     HOLD_TTL_MINUTES=(int, 10),
     BREVO_API_KEY=(str, ""),
-    DEFAULT_FROM_EMAIL=(str, 'jainananya2800@gmail.com'),
+    DEFAULT_FROM_EMAIL=(str, 'noreply@ticketsphere.com'),
 )
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))

@@ -123,7 +123,7 @@ def _send_brevo_email(email_target, subject, body, qr_bytes, booking_reference):
         
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{"email": email_target}],
-            bcc=[{"email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'jainananya2800@gmail.com')}],
+            bcc=[{"email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@ticketsphere.com')}],
             sender={"name": "CineStream System", "email": getattr(settings, 'DEFAULT_FROM_EMAIL', 'tickets@cinestream.in')},
             subject=subject,
             text_content=body,
