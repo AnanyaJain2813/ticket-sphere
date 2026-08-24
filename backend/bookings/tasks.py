@@ -126,13 +126,17 @@ def dispatch_email_for_booking(booking_id, recipient_email=None, recipient_name=
     ).get(id=booking_id)
 
     seat_names = [f"{s.seat.row_name}{s.seat.col_number}" for s in [booking.show_seat]]
+    
+    # Match the QR code generated in services.py EXACTLY
     qr_text = (
-        f"CineStream M-Ticket\n"
-        f"Booking: {booking.booking_reference}\n"
+        f"TicketSphere Pass\n"
         f"Movie: {booking.show.event.title}\n"
-        f"Date: {booking.show.start_time.strftime('%b %d, %Y %I:%M %p')}\n"
-        f"Seats: {', '.join(seat_names)}\n"
-        f"Total: ₹{booking.amount}"
+        f"Cinema: {booking.show.venue.name} - {booking.show.venue.location}\n"
+        f"Date & Time: {booking.show.start_time.strftime('%b %d, %Y %I:%M %p')}\n"
+        f"Seat: {', '.join(seat_names)}\n"
+        f"Customer: {recipient_name or booking.user.username}\n"
+        f"Email: {booking.user.email or (booking.user.username + '@gmail.com')}\n"
+        f"Ref: {booking.booking_reference}"
     )
     qr_bytes = generate_qr_code_bytes(qr_text)
     
